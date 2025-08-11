@@ -45,3 +45,27 @@ b {
   max-width: 1100px;
   margin: 0 auto;
 }
+
+
+.fcDaygridDay {
+  position: relative;
+}
+.fcDaygridDay:hover .custom-plus-icon {
+  display: flex;
+}
+.custom-plus-icon {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  z-index: 10;
+}

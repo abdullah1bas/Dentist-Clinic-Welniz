@@ -2,6 +2,7 @@ import React from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import { Plus } from "lucide-react";
 
 export default function Calendar({
   appointments,
@@ -37,6 +38,18 @@ export default function Calendar({
           setShowMoreDialog(true);
         }
         return "popover";
+      }}
+      dayCellContent={(arg) => {
+        return (
+          <div className="fc-daygrid-day-frame">
+            <div className="fc-daygrid-day-top">{arg.dayNumberText}</div>
+            <span className="custom-plus-icon mt-3 hover:bg-green-600 transition duration-300">
+              <Plus size={16} />
+            </span>
+            <div className="fc-daygrid-day-events"></div>
+            <div className="fc-daygrid-day-bg"></div>
+          </div>
+        );
       }}
     />
   );

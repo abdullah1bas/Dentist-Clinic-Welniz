@@ -6,18 +6,29 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { expenseSchema } from "@/lib/utils";
-import { CATEGORIES } from "@/lib/utils";
+import { ADDED_BY_OPTIONS } from "@/lib/utils";
 
-const ADDED_BY_OPTIONS = ["Admin", "Manager", "Staff"];
 
-export default function ExpenseForm({ isDialogOpen, setIsDialogOpen, editing, setEditing, setExpenses, expenses }) {
+export default function FinancialForm({
+  isDialogOpen,
+  setIsDialogOpen,
+  editing,
+  setEditing,
+  data,
+  setData,
+  categories,
+  schema,
+  title,
+  descriptionPlaceholder,
+  amountPlaceholder,
+  buttonColor
+}) {
   const form = useForm({
-    resolver: zodResolver(expenseSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       date: new Date().toISOString().slice(0, 10),
       description: "",
-      category: CATEGORIES[0],
+      category: categories[0],
       amount: "",
       addedBy: ADDED_BY_OPTIONS[0],
     },
@@ -25,36 +36,36 @@ export default function ExpenseForm({ isDialogOpen, setIsDialogOpen, editing, se
 
   useEffect(() => {
     if (editing) {
-      const expense = expenses.find((e) => e.id === editing);
-      if (expense) {
+      const item = data.find((d) => d.id === editing);
+      if (item) {
         form.reset({
-          date: expense.date,
-          description: expense.description,
-          category: expense.category,
-          amount: String(expense.amount),
-          addedBy: expense.addedBy,
+          date: item.date,
+          description: item.description,
+          category: item.category,
+          amount: String(item.amount),
+          addedBy: item.addedBy,
         });
       }
     } else {
       form.reset({
         date: new Date().toISOString().slice(0, 10),
         description: "",
-        category: CATEGORIES[0],
+        category: categories[0],
         amount: "",
         addedBy: ADDED_BY_OPTIONS[0],
       });
     }
-  }, [editing, expenses, form]);
+  }, [editing, data, form, categories]);
 
-  const onSubmit = (data) => {
-    const amount = parseFloat(String(data.amount).replace(/,/g, ""));
+  const onSubmit = (formData) => {
+    const amount = parseFloat(String(formData.amount).replace(/,/g, ""));
     const item = {
       id: editing || Date.now(),
-      ...data,
+      ...formData,
       amount,
     };
 
-    setExpenses((prev) =>
+    setData((prev) =>
       editing ? prev.map((p) => (p.id === editing ? item : p)) : [item, ...prev]
     );
     setIsDialogOpen(false);
@@ -75,16 +86,16 @@ export default function ExpenseForm({ isDialogOpen, setIsDialogOpen, editing, se
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg text-white">
         <DialogHeader>
-          <DialogTitle>{editing ? "تعديل المصروف" : "إضافة مصروف"}</DialogTitle>
+          <DialogTitle className='text-white'>{editing ? `تعديل ${title}` : `إضافة ${title}`}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 text-white">
             <div className="grid grid-cols-2 gap-2">
               <FormField
                 control={form.control}
                 name="date"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="text-white">
                     <FormLabel>التاريخ</FormLabel>
                     <FormControl>
                       <Input className='text-black bg-white' type="date" {...field} />
@@ -106,7 +117,7 @@ export default function ExpenseForm({ isDialogOpen, setIsDialogOpen, editing, se
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {CATEGORIES.map((c) => (
+                        {categories.map((c) => (
                           <SelectItem key={c} value={c}>{c}</SelectItem>
                         ))}
                       </SelectContent>
@@ -123,7 +134,7 @@ export default function ExpenseForm({ isDialogOpen, setIsDialogOpen, editing, se
                 <FormItem>
                   <FormLabel>الوصف</FormLabel>
                   <FormControl>
-                    <Input className='text-black bg-white placeholder:text-black' {...field} placeholder="مثل: شراء مواد تخدير" />
+                    <Input className='text-black bg-white placeholder:text-black' {...field} placeholder={descriptionPlaceholder} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -136,7 +147,7 @@ export default function ExpenseForm({ isDialogOpen, setIsDialogOpen, editing, se
                 <FormItem>
                   <FormLabel>المبلغ (EGP)</FormLabel>
                   <FormControl>
-                    <Input className='text-black bg-white placeholder:text-black' {...field} placeholder="مثال: 1200" />
+                    <Input className='text-black bg-white placeholder:text-black' {...field} placeholder={amountPlaceholder} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -168,7 +179,7 @@ export default function ExpenseForm({ isDialogOpen, setIsDialogOpen, editing, se
               <Button type="button" variant="ghost" onClick={() => setIsDialogOpen(false)}>
                 إلغاء
               </Button>
-              <Button type="submit">{editing ? "حفظ التعديلات" : "إضافة"}</Button>
+              <Button className={`${buttonColor} transition duration-300`} type="submit">{editing ? "حفظ التعديلات" : "إضافة"}</Button>
             </div>
           </form>
         </Form>

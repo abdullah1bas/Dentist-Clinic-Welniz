@@ -1,15 +1,15 @@
 import React, { useEffect, useMemo, useState } from "react";
-import ExpensesHeader from "@/components/expense/ExpensesHeader";
-import ExpensesOverview from "@/components/expense/ExpensesOverview";
-import ExpensesTable from "@/components/expense/ExpensesTable";
-import ExpenseForm from "@/components/expense/ExpenseForm";
-import ExpensesChart from "@/components/expense/ExpensesChart";
-import { CATEGORIES, currency } from "@/lib/utils";
+import { currency, EXPENSE_CATEGORIES, financialSchema } from "@/lib/utils";
+import FinancialHeader from "@/components/financial/shared/FinancialHeader";
+import FinancialOverview from "@/components/financial/shared/FinancialOverview";
+import FinancialTable from "@/components/financial/shared/FinancialTable";
+import FinancialForm from "@/components/financial/shared/FinancialForm";
+import FinancialChart from "@/components/financial/shared/FinancialChart";
 
 const STORAGE_KEY = "clinic_expenses_v1";
 
 export default function Expenses() {
-  const [expenses, setExpenses] = useState([]);
+  const [data, setData] = useState([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [filterCategory, setFilterCategory] = useState("all");
@@ -21,7 +21,7 @@ export default function Expenses() {
     if (raw) {
       try {
         const parsed = JSON.parse(raw);
-        setExpenses(parsed);
+        setData(parsed);
       } catch (e) {
         console.error("could not parse expenses from localStorage", e);
       }
@@ -30,43 +30,45 @@ export default function Expenses() {
         { id: Date.now() - 1000000, date: "2025-07-20", description: "شراء أدوات معملية", category: "معدات", amount: 2500, addedBy: "Admin" },
         { id: Date.now() - 500000, date: "2025-07-22", description: "مخدرات", category: "أدوية", amount: 800, addedBy: "Manager" },
       ];
-      setExpenses(seed);
+      setData(seed);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(seed));
     }
   }, []);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(expenses));
-  }, [expenses]);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }, [data]);
 
   const filtered = useMemo(() => {
-    return expenses.filter((e) => {
+    return data.filter((e) => {
       if (filterCategory !== "all" && e.category !== filterCategory) return false;
       if (filterFrom && e.date < filterFrom) return false;
       if (filterTo && e.date > filterTo) return false;
       return true;
     });
-  }, [expenses, filterCategory, filterFrom, filterTo]);
+  }, [data, filterCategory, filterFrom, filterTo]);
 
   const totals = useMemo(() => {
-    const allTotal = expenses.reduce((s, i) => s + Number(i.amount), 0);
+    const allTotal = data.reduce((s, i) => s + Number(i.amount), 0);
     const filteredTotal = filtered.reduce((s, i) => s + Number(i.amount), 0);
     return { allTotal, filteredTotal };
-  }, [expenses, filtered]);
+  }, [data, filtered]);
 
-  const handleEdit = (exp) => {
-    setEditing(exp.id);
+  const handleEdit = (item) => {
+    setEditing(item.id);
     setIsDialogOpen(true);
   };
 
   const handleDelete = (id) => {
     if (!confirm("هل أنت متأكد من حذف المصروف؟")) return;
-    setExpenses((prev) => prev.filter((p) => p.id !== id));
+    setData((prev) => prev.filter((p) => p.id !== id));
   };
 
   return (
     <div className="space-y-6">
-      <ExpensesHeader
+      <FinancialHeader
+        title="المصروفات"
+        badgeColor="bg-blue-600 hover:bg-blue-700"
         totals={totals}
         filterCategory={filterCategory}
         setFilterCategory={setFilterCategory}
@@ -74,23 +76,42 @@ export default function Expenses() {
         setFilterFrom={setFilterFrom}
         filterTo={filterTo}
         setFilterTo={setFilterTo}
+        categories={EXPENSE_CATEGORIES}
       />
-      <ExpensesOverview
-        expenses={expenses}
+      <FinancialOverview
+        data={data}
         filtered={filtered}
         totals={totals}
         openAddDialog={() => setIsDialogOpen(true)}
+        title="مصروف"
+        buttonColor="bg-blue-600 hover:bg-blue-700"
       />
-      <ExpensesTable filtered={filtered} currency={currency} onEdit={handleEdit} onDelete={handleDelete} />
-      <ExpenseForm
+      <FinancialTable
+        filtered={filtered}
+        currency={currency}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        title="مصروف"
+      />
+      <FinancialForm
         isDialogOpen={isDialogOpen}
         setIsDialogOpen={setIsDialogOpen}
         editing={editing}
         setEditing={setEditing}
-        setExpenses={setExpenses}
-        expenses={expenses}
+        data={data}
+        setData={setData}
+        categories={EXPENSE_CATEGORIES}
+        schema={financialSchema(EXPENSE_CATEGORIES)}
+        title="مصروف"
+        descriptionPlaceholder="مثل: شراء مواد تخدير"
+        amountPlaceholder="مثال: 1200"
       />
-      <ExpensesChart expenses={expenses} categories={CATEGORIES} currency={currency} />
+      <FinancialChart
+        data={data}
+        categories={EXPENSE_CATEGORIES}
+        currency={currency}
+        title="رسم بياني للمصروفات حسب الفئة"
+      />
     </div>
   );
 }

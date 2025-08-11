@@ -11,8 +11,6 @@ export default function CasesheetsPage() {
         />
       </div>
       <CasesheetsList />
-      <h1 className="text-2xl font-bold mb-4">Dental Chart</h1>
-      {/* <DentalChart /> */}
     </div>
   );
 }

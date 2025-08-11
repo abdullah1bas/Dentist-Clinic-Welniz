@@ -3,9 +3,11 @@ import { Filter } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { currency, CATEGORIES } from "@/lib/utils";
+import { currency } from "@/lib/utils";
 
-export default function ExpensesHeader({
+export default function FinancialHeader({
+  title,
+  badgeColor,
   totals,
   filterCategory,
   setFilterCategory,
@@ -13,13 +15,14 @@ export default function ExpensesHeader({
   setFilterFrom,
   filterTo,
   setFilterTo,
+  categories,
 }) {
   return (
     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div className="flex items-center gap-3">
-        <h2 className="text-2xl font-semibold">المصروفات</h2>
-        <Badge variant="secondary" className="text-sm bg-blue-600 text-white">
-          إجمالي المصروفات: {currency(totals.allTotal)}
+        <h2 className="text-2xl font-semibold">{title}</h2>
+        <Badge variant="secondary" className={`text-sm ${badgeColor} text-white`}>
+          إجمالي {title}: {currency(totals.allTotal)}
         </Badge>
       </div>
       <div className="flex flex-col sm:flex-row items-center gap-2 bg-muted rounded-md p-2">
@@ -31,7 +34,7 @@ export default function ExpensesHeader({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">الكل</SelectItem>
-              {CATEGORIES.map((c) => (
+              {categories.map((c) => (
                 <SelectItem key={c} value={c}>{c}</SelectItem>
               ))}
             </SelectContent>

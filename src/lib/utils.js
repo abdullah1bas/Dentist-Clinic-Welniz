@@ -13,10 +13,10 @@ export const appointmentSchema = z.object({
   note: z.string().optional()
 });
 
-export const expenseSchema = z.object({
+export const financialSchema = (categories) => z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "يجب إدخال تاريخ صحيح"),
   description: z.string().min(1, "الوصف مطلوب"),
-  category: z.enum(["معدات", "أدوية", "أجور", "صيانة", "أخرى"], {
+  category: z.enum(categories, {
     errorMap: () => ({ message: "يجب اختيار فئة صحيحة" }),
   }),
   amount: z.string().refine(
@@ -31,7 +31,18 @@ export const expenseSchema = z.object({
   }),
 });
 
-export const CATEGORIES = ["معدات", "أدوية", "أجور", "صيانة", "أخرى"];
+export const prescriptionSchema = z.object({
+  patientName: z.string().min(1, "اسم المريض مطلوب"),
+  medicine: z.string().min(1, "اسم الدواء مطلوب"),
+  dosage: z.string().min(1, "الجرعة مطلوبة"),
+  duration: z.string().min(1, "مدة العلاج مطلوبة"),
+  notes: z.string().optional()
+});
+
+export const EXPENSE_CATEGORIES = ["معدات", "أدوية", "أجور", "صيانة", "أخرى"];
+export const INCOME_CATEGORIES = ["استشارات", "علاجات", "بيع أدوية", "خدمات أخرى", "أخرى"];
+export const ADDED_BY_OPTIONS = ["Admin", "Manager", "Staff"];
+
 export function currency(n) {
   return n.toLocaleString("ar-EG", { style: "currency", currency: "EGP" });
 }
