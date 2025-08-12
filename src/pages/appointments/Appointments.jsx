@@ -2,7 +2,7 @@ import AppointmentForm from "@/components/appointments/AppointmentForm";
 import Calendar from "@/components/appointments/Calendar";
 import MorePatientsDialog from "@/components/appointments/MorePatientsDialog";
 import React, { useMemo, useState } from "react";
-import styles from "./Appointments.module.css";
+// import styles from "./Appointments.module.css";
 
 export default function Appointments() {
   const [appointments, setAppointments] = useState([]);
@@ -23,16 +23,18 @@ export default function Appointments() {
   }, [appointments]);
 
   return (
-    <div className="p-4">
-      <Calendar
-        appointments={appointments}
-        setSelectedDate={setSelectedDate}
-        setEditPatient={setEditPatient}
-        setOpenDialog={setOpenDialog}
-        setMorePatients={setMorePatients}
-        setShowMoreDialog={setShowMoreDialog}
-        calendarEvents={calendarEvents}
-      />
+    <div className="px-0 sm:p-4">
+      <div className="min-w-96">
+        <Calendar
+          appointments={appointments}
+          setSelectedDate={setSelectedDate}
+          setEditPatient={setEditPatient}
+          setOpenDialog={setOpenDialog}
+          setMorePatients={setMorePatients}
+          setShowMoreDialog={setShowMoreDialog}
+          calendarEvents={calendarEvents}
+        />
+      </div>
       <AppointmentForm
         openDialog={openDialog}
         setOpenDialog={setOpenDialog}

@@ -21,7 +21,7 @@ export default function AppointmentForm({
     resolver: zodResolver(appointmentSchema),
     defaultValues: {
       patientName: "",
-      nationalId: "",
+      phone: "",
       time: "",
       note: ""
     }
@@ -84,7 +84,7 @@ export default function AppointmentForm({
     if (editPatient) {
       form.reset({
         patientName: editPatient.patientName,
-        nationalId: editPatient.nationalId,
+        phone: editPatient.phone,
         time: editPatient.time,
         note: editPatient.note || ""
       });
@@ -95,7 +95,7 @@ export default function AppointmentForm({
 
   return (
     <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-      <DialogContent className=" text-white">
+      <DialogContent className="text-white z-[10000]">
         <DialogHeader>
           <DialogTitle className="text-white">
             {editPatient ? "تعديل بيانات المريض" : "إضافة مريض جديد"}
@@ -118,12 +118,12 @@ export default function AppointmentForm({
             />
             <FormField
               control={form.control}
-              name="nationalId"
+              name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-white">الرقم القومي</FormLabel>
+                  <FormLabel className="text-white">Phone Number</FormLabel>
                   <FormControl>
-                    <Input type="text" {...field} className="w-full border p-2 rounded text-black bg-white" />
+                    <Input type="tel" {...field} className="w-full border p-2 rounded text-black bg-white" />
                   </FormControl>
                   <FormMessage className="text-red-500 text-sm" />
                 </FormItem>

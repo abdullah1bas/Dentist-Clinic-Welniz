@@ -1,213 +1,148 @@
 
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { v4 as uuidv4 } from "uuid";
-import { prescriptionSchema } from "@/lib/utils";
+
+import {  useMemo } from "react"
+import { DataGrid, GridToolbar, GridActionsCellItem } from "@mui/x-data-grid"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Plus, Eye, Printer } from "lucide-react"
+// import { arSA } from "@mui/x-data-grid/locales"
+import { PrescriptionDialog } from "@/components/prescriptions/PrescriptionDialog";
+
+// Mock data
+const prescriptions = [
+  {
+    id: "RX001",
+    patientName: "أحمد محمد علي",
+    doctorName: "د. محمد صادق",
+    date: "2025-01-15",
+    age: 35,
+    gender: "ذكر",
+    diagnosis: "التهاب اللثة",
+  },
+  {
+    id: "RX002",
+    patientName: "فاطمة أحمد",
+    doctorName: "د. سارة محمود",
+    date: "2025-01-14",
+    age: 28,
+    gender: "أنثى",
+    diagnosis: "تسوس الأسنان",
+  },
+  {
+    id: "RX003",
+    patientName: "محمود حسن",
+    doctorName: "د. محمد صادق",
+    date: "2025-01-13",
+    age: 42,
+    gender: "ذكر",
+    diagnosis: "خلع ضرس العقل",
+  },
+]
+
+
 
 export default function Prescriptions() {
-  const [prescriptions, setPrescriptions] = useState([]);
-  const [openDialog, setOpenDialog] = useState(false);
-  const [editPrescription, setEditPrescription] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [selectedPrescription, setSelectedPrescription] = useState(null)
 
-  const form = useForm({
-    resolver: zodResolver(prescriptionSchema),
-    defaultValues: {
-      patientName: "",
-      medicine: "",
-      dosage: "",
-      duration: "",
-      notes: ""
-    }
-  });
+  const columns = useMemo(
+    () => [
+      { field: "id", headerName: "رقم الروشتة", width: 120, filterable: true },
+      { field: "patientName", headerName: "اسم المريض", width: 180, filterable: true },
+      { field: "doctorName", headerName: "الطبيب", width: 150, filterable: true },
+      { field: "date", headerName: "التاريخ", width: 120, type: "date", valueGetter: (value) => new Date(value) },
+      { field: "age", headerName: "العمر", width: 80, type: "number" },
+      { field: "gender", headerName: "الجنس", width: 80, filterable: true },
+      { field: "diagnosis", headerName: "التشخيص", width: 200, filterable: true },
+      {
+        field: "actions",
+        type: "actions",
+        headerName: "الإجراءات",
+        width: 120,
+        getActions: (params) => [
+          <GridActionsCellItem
+            key="view"
+            icon={<Eye className="w-4 h-4" />}
+            label="عرض"
+            onClick={() => handleEdit(params.row)}
+          />,
+          <GridActionsCellItem
+            key="print"
+            icon={<Printer className="w-4 h-4" />}
+            label="طباعة"
+            onClick={() => handlePrint(params.row)}
+          />,
+        ],
+      },
+    ],
+    [],
+  )
 
-  const onSubmit = (data) => {
-    const newData = {
-      id: editPrescription?.id || uuidv4(),
-      date: new Date().toLocaleString(),
-      ...data
-    };
+  const handleEdit = (prescription) => {
+    setSelectedPrescription(prescription)
+    setIsDialogOpen(true)
+  }
 
-    if (editPrescription) {
-      setPrescriptions((prev) =>
-        prev.map((p) => (p.id === editPrescription.id ? newData : p))
-      );
-    } else {
-      setPrescriptions((prev) => [...prev, newData]);
-    }
+  const handlePrint = (prescription) => {
+    console.log("Printing prescription:", prescription.id)
+  }
 
-    setOpenDialog(false);
-    setEditPrescription(null);
-    form.reset();
-  };
-
-  const handleEdit = (item) => {
-    setEditPrescription(item);
-    form.reset({
-      patientName: item.patientName,
-      medicine: item.medicine,
-      dosage: item.dosage,
-      duration: item.duration,
-      notes: item.notes || ""
-    });
-    setOpenDialog(true);
-  };
-
-  const handleDelete = (id) => {
-    setPrescriptions((prev) => prev.filter((p) => p.id !== id));
-  };
-
-  const filteredPrescriptions = prescriptions.filter(
-    (p) =>
-      p.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.medicine.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleAddNew = () => {
+    setSelectedPrescription(null)
+    setIsDialogOpen(true)
+  }
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <Input
-          placeholder="بحث باسم المريض أو الدواء..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-1/3"
-        />
-        <Button onClick={() => { form.reset(); setEditPrescription(null); setOpenDialog(true); }}>
-          إضافة وصفة جديدة
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-zinc-900">الروشتات الطبية</h1>
+          <p className="text-zinc-600 mt-1">إدارة وطباعة الروشتات الطبية</p>
+        </div>
+        <Button onClick={handleAddNew} className="bg-blue-600 hover:bg-blue-700">
+          <Plus className="w-4 h-4 mr-2" />
+          روشتة جديدة
         </Button>
       </div>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>اسم المريض</TableHead>
-            <TableHead>الدواء</TableHead>
-            <TableHead>الجرعة</TableHead>
-            <TableHead>المدة</TableHead>
-            <TableHead>التاريخ</TableHead>
-            <TableHead>ملاحظات</TableHead>
-            <TableHead>إجراءات</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {filteredPrescriptions.length > 0 ? (
-            filteredPrescriptions.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell>{item.patientName}</TableCell>
-                <TableCell>{item.medicine}</TableCell>
-                <TableCell>{item.dosage}</TableCell>
-                <TableCell>{item.duration}</TableCell>
-                <TableCell>{item.date}</TableCell>
-                <TableCell>{item.notes}</TableCell>
-                <TableCell className="space-x-2">
-                  <Button size="sm" onClick={() => handleEdit(item)}>تعديل</Button>
-                  <Button size="sm" variant="destructive" onClick={() => handleDelete(item.id)}>حذف</Button>
-                </TableCell>
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={7} className="text-center text-gray-500">
-                لا توجد وصفات طبية
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+      <Card>
+        <CardHeader>
+          <CardTitle>قائمة الروشتات</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div style={{ height: 600, width: "100%" }}>
+            <DataGrid
+              rows={prescriptions}
+              columns={columns}
+              slots={{ toolbar: GridToolbar }}
+              slotProps={{
+                toolbar: {
+                  showQuickFilter: true,
+                  printOptions: { disableToolbarButton: false },
+                },
+              }}
+              initialState={{
+                pagination: { paginationModel: { pageSize: 10 } },
+              }}
+              pageSizeOptions={[5, 10, 25]}
+              checkboxSelection
+              disableRowSelectionOnClick
+              sx={{
+                "& .MuiDataGrid-root": {
+                  direction: "rtl",
+                },
+                "& .MuiDataGrid-columnHeaders": {
+                  backgroundColor: "#f8fafc",
+                  fontWeight: "bold",
+                },
+              }}
+            />
+          </div>
+        </CardContent>
+      </Card>
 
-      {/* Dialog */}
-      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{editPrescription ? "تعديل وصفة" : "إضافة وصفة جديدة"}</DialogTitle>
-          </DialogHeader>
-
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
-              <FormField
-                control={form.control}
-                name="patientName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>اسم المريض</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="medicine"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>اسم الدواء</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="dosage"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>الجرعة</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="duration"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>مدة العلاج</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="notes"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>ملاحظات</FormLabel>
-                    <FormControl>
-                      <Textarea {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="flex justify-end space-x-2">
-                <Button type="submit">{editPrescription ? "تحديث" : "إضافة"}</Button>
-              </div>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
+      <PrescriptionDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} prescription={selectedPrescription} />
     </div>
-  );
+  )
 }

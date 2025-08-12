@@ -11,7 +11,7 @@ export default function Calendar({
   setOpenDialog,
   setMorePatients,
   setShowMoreDialog,
-  calendarEvents
+  calendarEvents,
 }) {
   return (
     <FullCalendar
@@ -32,7 +32,7 @@ export default function Calendar({
         setOpenDialog(true);
       }}
       moreLinkClick={(arg) => {
-        const dayData = appointments.find(a => a.date === arg.dateStr);
+        const dayData = appointments.find((a) => a.date === arg.dateStr);
         if (dayData) {
           setMorePatients(dayData.patients);
           setShowMoreDialog(true);
@@ -40,13 +40,38 @@ export default function Calendar({
         return "popover";
       }}
       dayCellContent={(arg) => {
+        // لو الخلية مفيهاش رقم اليوم الطبيعي أو التاريخ undefined يبقى غالباً جوه popover
+        const isInPopover = !arg.date || !arg.dayNumberText;
+
         return (
-          <div className="fc-daygrid-day-frame">
+          <div
+            className="fc-daygrid-day-frame flex flex-col justify-between h-full group"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* رقم اليوم */}
             <div className="fc-daygrid-day-top">{arg.dayNumberText}</div>
-            <span className="custom-plus-icon mt-3 hover:bg-green-600 transition duration-300">
-              <Plus size={16} />
-            </span>
+
+            {/* باقي الأحداث */}
             <div className="fc-daygrid-day-events"></div>
+
+            {/* زر الإضافة الكبير */}
+            {!isInPopover && (
+              <div className="w-full flex justify-center mb-1 sm:mr-12 lg:mr-16 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <button
+                  className="bg-green-500 hover:bg-green-600 text-white rounded-full sm:p-2 lg:p-3 shadow-lg transition duration-300"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setSelectedDate(arg.date.toISOString().split("T")[0]);
+                    setEditPatient(null);
+                    setOpenDialog(true);
+                  }}
+                >
+                  <Plus className="size-6 lg:size-8" />
+                </button>
+              </div>
+            )}
+
             <div className="fc-daygrid-day-bg"></div>
           </div>
         );

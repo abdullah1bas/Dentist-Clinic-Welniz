@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CalendarCheck, LogOut, Globe, Menu, Sparkles, ClipboardList, Scissors, DollarSign, FileText, ScrollText,
+import { CalendarCheck, LogOut, Globe, Menu, Sparkles, ClipboardList, Scissors, DollarSign, FileText, ScrollText, ArrowRightToLine, ArrowLeftToLine,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -47,7 +47,7 @@ export default function Sidebar() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button variant="ghost" size="icon" onClick={() => setIsOpen(!isOpen)}>
-                  <Menu size={20} />
+                  {isOpen ? <ArrowLeftToLine size={20} /> : <ArrowRightToLine size={20} />}
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="right">

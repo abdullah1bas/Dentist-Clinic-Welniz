@@ -8,7 +8,7 @@ export function cn(...inputs) {
 
 export const appointmentSchema = z.object({
   patientName: z.string().min(1, "اسم المريض مطلوب"),
-  nationalId: z.string().length(14, "الرقم القومي يجب أن يكون 14 رقم"),
+  phone: z.string().regex(/^01[0-9]{9}$/, "رقم الهاتف يجب أن يكون 11 رقم ويبدأ بـ 01"),
   time: z.string(),
   note: z.string().optional()
 });
