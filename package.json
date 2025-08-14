@@ -36,8 +36,10 @@
     "sweetalert2": "^11.22.2",
     "tailwind-merge": "^3.3.1",
     "tailwindcss-animate": "^1.0.7",
+    "use-debounce": "^10.0.5",
     "uuid": "^11.1.0",
-    "zod": "^4.0.17"
+    "zod": "^4.0.17",
+    "zustand": "^5.0.7"
   },
   "devDependencies": {
     "@eslint/js": "^9.30.1",

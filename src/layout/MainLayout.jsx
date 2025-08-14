@@ -1,14 +1,16 @@
 import Sidebar from "../components/Sidebar";
 import { Outlet } from "react-router-dom";
 import '../index.css';
+import PrescriptionPrintView from "@/components/prescriptions/prescription-dialog/PrescriptionPrintView";
 
 export default function MainLayout() {
   return (
     <div className="flex h-screen w-full">
       <Sidebar />
-      <main className="flex-1 overflow-y-auto bg-gray-200 p-6">
+      <main className="flex-1 overflow-y-auto bg-gray-200 p-6 px-2 sm:px-6">
         <Outlet />
       </main>
+      <PrescriptionPrintView />
     </div>
   );
 }

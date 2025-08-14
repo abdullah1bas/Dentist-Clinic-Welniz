@@ -31,12 +31,25 @@ export const financialSchema = (categories) => z.object({
   }),
 });
 
-export const prescriptionSchema = z.object({
+export const prescriptionDialogSchema = z.object({
+  clinicLogo: z.string().optional(),
+  date: z.string().min(1, "التاريخ مطلوب"),
   patientName: z.string().min(1, "اسم المريض مطلوب"),
-  medicine: z.string().min(1, "اسم الدواء مطلوب"),
-  dosage: z.string().min(1, "الجرعة مطلوبة"),
-  duration: z.string().min(1, "مدة العلاج مطلوبة"),
-  notes: z.string().optional()
+  gender: z.string().optional(),
+  age: z.union([z.string(), z.number()]).optional(),
+  diagnosis: z.string().optional(),
+  prescription: z.string().optional(),
+  doctorName: z.string().min(1, "اسم الطبيب مطلوب"),
+  doctorSignature: z.string().optional(),
+});
+
+// تعريف schema للتحقق من الصحة
+export const prescriptionFilterSchema = z.object({
+  search: z.string().optional(),
+  doctor: z.string(),
+  status: z.string(),
+  dateFrom: z.string().optional(),
+  dateTo: z.string().optional(),
 });
 
 export const EXPENSE_CATEGORIES = ["معدات", "أدوية", "أجور", "صيانة", "أخرى"];

@@ -11,8 +11,8 @@ import WhatsNewPage from "./pages/newsPage/WhatsNewPage";
 import Appointments from "./pages/appointments/Appointments";
 import Expenses from "./pages/expenses/Expenses";
 import Income from "./pages/income/Income";
-// import Prescriptions from "./pages/prescriptions/Prescriptions";
 import PrescriptionsTest from "./pages/prescriptions/PrescriptionsTest";
+// import Prescriptions from "./pages/prescriptions/Prescriptions";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
