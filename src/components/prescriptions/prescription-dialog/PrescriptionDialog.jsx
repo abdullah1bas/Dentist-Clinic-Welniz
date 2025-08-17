@@ -1,141 +1,324 @@
-import { useState } from "react";
-import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Form } from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { MedicineDialog } from "./MedicineDialog";
-import { PatientInfoSection } from "./PatientInfoSection";
-import { DoctorInfoSection } from "./DoctorInfoSection";
-import { ActionButtons } from "./ActionButtons";
-import PrescriptionDialogMedicine from "./PrescriptionDialogMedicine";
-import PrescriptionDialogHeader from "./PrescriptionDialogHeader";
-import { X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { usePrescriptionForm } from "@/hooks/usePrescriptionForm";
-import { useImageHandler } from "@/hooks/useImageHandler";
 
-export function PrescriptionDialog({
-  open,
-  onOpenChange,
-  selectedPrescription,
-  setPrescriptions,
-  setIsDialogOpen,
-  setSelectedPrescription,
-  prescriptions,
-}) {
-  const [isMedicineDialogOpen, setIsMedicineDialogOpen] = useState(false);
-  const form = usePrescriptionForm(selectedPrescription, open);
-  const { handleImageUpload, removeImage } = useImageHandler(form);
+import { useState } from "react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+// import { MedicineDialog } from "@/components/medicine-dialog"
+import { Save, Printer, Pill, Upload, X } from "lucide-react"
+// import { usePrescriptionStore } from "@/stores/prescription-store"
+// import { usePrescriptionForm } from "@/hooks/use-prescription-form"
+import { MedicineDialog } from "./MedicineDialog"
+import { usePrescriptionStore } from "@/store/usePrescriptionStore"
+import { usePrescriptionForm } from "@/hooks/usePrescriptionForm"
+
+export function PrescriptionDialog() {
+  const {
+    isDialogOpen,
+    setIsDialogOpen,
+    selectedPrescription,
+    setSelectedPrescription,
+    addPrescription,
+    updatePrescription,
+  } = usePrescriptionStore()
+
+  const [isMedicineDialogOpen, setIsMedicineDialogOpen] = useState(false)
+  const { formData, updateField, handleImageUpload, removeImage } = usePrescriptionForm(
+    selectedPrescription,
+    isDialogOpen,
+  )
 
   const handlePrescriptionChange = (e) => {
-    const value = e.target.value;
-    const lines = value.split("\n");
+    const value = e.target.value
+    const lines = value.split("\n")
     const formattedLines = lines.map((line, index) => {
       if (index > 0 && line.trim() && !line.trim().startsWith("*")) {
-        return `* ${line.trim()}`;
+        return `* ${line.trim()}`
       }
-      return line;
-    });
-    form.setValue("prescription", formattedLines.join("\n"));
-  };
+      return line
+    })
+    updateField("prescription", formattedLines.join("\n"))
+  }
 
-  
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      const textarea = e.currentTarget
+      const cursorPosition = textarea.selectionStart
+      const value = textarea.value
+      const beforeCursor = value.substring(0, cursorPosition)
+      const afterCursor = value.substring(cursorPosition)
+      const newValue = beforeCursor + "\n* " + afterCursor
+
+      updateField("prescription", newValue)
+
+      setTimeout(() => {
+        textarea.selectionStart = textarea.selectionEnd = cursorPosition + 3
+      }, 0)
+
+      e.preventDefault()
+    }
+  }
 
   const handleAddMedicine = (medicine) => {
-    const currentPrescription = form.getValues("prescription");
-    const newLine = currentPrescription ? "\n* " + medicine : "* " + medicine;
-    form.setValue("prescription", currentPrescription + newLine);
-  };
+    const currentPrescription = formData.prescription
+    const newLine = currentPrescription ? "\n* " + medicine : "* " + medicine
+    updateField("prescription", currentPrescription + newLine)
+  }
 
-  const handleSavePrescription = (data) => {
-    if (selectedPrescription) {
-      // تعديل روشتة موجودة
-      setPrescriptions((prev) =>
-        prev.map((p) =>
-          p.id === selectedPrescription.id
-            ? { ...data, id: selectedPrescription.id, age: Number(data.age) || 0 }
-            : p
-        )
-      );
-    } else {
-      // إضافة روشتة جديدة
-      const newId = `RX${String(prescriptions.length + 1).padStart(3, "0")}`;
-      const newPrescription = {
-        ...data,
-        age: Number(data.age) || 0,
-        id: newId,
-        status: "جديدة",
-      };
-      setPrescriptions((prev) => [newPrescription, ...prev]);
+  const handleSave = () => {
+    if (!formData.patientName.trim()) {
+      alert("يرجى إدخال اسم المريض")
+      return
     }
-    setIsDialogOpen(false);
-    setSelectedPrescription(null);
-  };
+    if (!formData.doctorName.trim()) {
+      alert("يرجى إدخال اسم الطبيب")
+      return
+    }
+
+    if (selectedPrescription) {
+      updatePrescription(selectedPrescription.id, formData)
+    } else {
+      addPrescription(formData)
+    }
+
+    setIsDialogOpen(false)
+    setSelectedPrescription(null)
+  }
+
+  const handlePrint = () => {
+    window.print()
+  }
+
+  const handleClose = () => {
+    setIsDialogOpen(false)
+    setSelectedPrescription(null)
+  }
 
   return (
     <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-4xl max-h-[90vh] text-white overflow-y-auto print:max-w-none print:max-h-none print:overflow-visible print:shadow-none">
-          <DialogClose asChild>
-            <Button
-              variant="destructive"
-              size="sm"
-              className="absolute top-0 right-0 print:hidden z-50"
-            >
-              <X className="w-4 h-4" />
-            </Button>
-          </DialogClose>
-          <DialogHeader className={"print:hidden"}>
-            <DialogTitle>إضافة/تعديل روشتة طبية</DialogTitle>
+      <Dialog open={isDialogOpen} onOpenChange={handleClose}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto print:max-w-none print:max-h-none print:overflow-visible print:shadow-none">
+          <DialogHeader className="print:hidden">
+            <DialogTitle>{selectedPrescription ? "تعديل روشتة طبية" : "إضافة روشتة طبية"}</DialogTitle>
           </DialogHeader>
 
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(handleSavePrescription)}
-              className=" print:p-0"
-              id="prescription-form"
-            >
-              <PrescriptionDialogHeader
-                clinicLogo={form.watch("clinicLogo")}
-                onImageUpload={handleImageUpload}
-                onRemoveImage={removeImage}
-              />
+          <div className="bg-white print:p-0" id="prescription-form">
+            {/* Clinic Logo */}
+            {formData.clinicLogo ? (
+              <div className="relative w-full mb-6 print:mb-4">
+                <img
+                  src={formData.clinicLogo || "/placeholder.svg"}
+                  alt="شعار العيادة"
+                  className="w-full h-32 object-contain print:h-24"
+                />
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="absolute top-2 right-2 print:hidden"
+                  onClick={() => removeImage("clinicLogo")}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            ) : (
+              <div className="text-center mb-6 print:hidden">
+                <label htmlFor="logo-upload" className="cursor-pointer">
+                  <div className="border-dashed border-2 h-32 w-full hover:bg-zinc-50 flex items-center justify-center rounded-lg">
+                    <div className="flex flex-col items-center gap-2">
+                      <Upload className="w-8 h-8 text-zinc-400" />
+                      <span className="text-zinc-600">تحميل شعار العيادة</span>
+                      <span className="text-xs text-zinc-400">سيظهر بعرض كامل في أعلى الروشتة</span>
+                    </div>
+                  </div>
+                </label>
+                <input
+                  id="logo-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleImageUpload(e, "clinicLogo")}
+                  className="hidden"
+                />
+              </div>
+            )}
 
-              <PatientInfoSection form={form} />
-
-              <div className="space-y-2 mb-6 print:mb-4">
-                <Label htmlFor="diagnosis" className="text-sm font-medium">
-                  التشخيص
+            {/* Patient Information */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 print:grid-cols-4 print:gap-2 print:mb-4">
+              <div className="space-y-2">
+                <Label htmlFor="date" className="text-sm font-medium">
+                  التاريخ
                 </Label>
-                <Textarea
-                  id="diagnosis"
-                  {...form.register("diagnosis")}
-                  placeholder="وصف حالة المريض والتشخيص..."
-                  className="min-h-20 print:border-2 bg-white text-black placeholder:text-gray-600 print:border-gray-400 print:rounded-none print:bg-transparent print:p-2"
+                <Input
+                  id="date"
+                  type="date"
+                  value={formData.date}
+                  onChange={(e) => updateField("date", e.target.value)}
+                  className="print:border-0 print:border-b-2 print:border-gray-400 print:rounded-none print:bg-transparent print:px-1"
                 />
               </div>
 
-              <PrescriptionDialogMedicine
-                prescription={form.watch("prescription")}
-                onPrescriptionChange={handlePrescriptionChange}
-                onOpenMedicineDialog={() => setIsMedicineDialogOpen(true)}
-              />
+              <div className="space-y-2">
+                <Label htmlFor="patientName" className="text-sm font-medium">
+                  اسم المريض *
+                </Label>
+                <Input
+                  id="patientName"
+                  value={formData.patientName}
+                  onChange={(e) => updateField("patientName", e.target.value)}
+                  placeholder="اسم المريض"
+                  className="print:border-0 print:border-b-2 print:border-gray-400 print:rounded-none print:bg-transparent print:px-1"
+                  required
+                />
+              </div>
 
-              <DoctorInfoSection
-                doctorName={form.watch("doctorName")}
-                doctorSignature={form.watch("doctorSignature")}
-                date={form.watch("date")}
-                onImageUpload={handleImageUpload}
-                onRemoveImage={removeImage}
-                form={form}
-              />
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">الجنس</Label>
+                <div className="print:hidden">
+                  <select
+                    value={formData.gender}
+                    onChange={(e) => updateField("gender", e.target.value)}
+                    className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="ذكر">ذكر</option>
+                    <option value="أنثى">أنثى</option>
+                  </select>
+                </div>
+                <div className="hidden print:block">
+                  <div className="border-0 border-b-2 border-gray-400 pb-1 min-h-[2rem] flex items-center px-1">
+                    {formData.gender}
+                  </div>
+                </div>
+              </div>
 
-              <ActionButtons
-                isEditMode={!!selectedPrescription}
+              <div className="space-y-2">
+                <Label htmlFor="age" className="text-sm font-medium">
+                  العمر
+                </Label>
+                <Input
+                  id="age"
+                  type="number"
+                  value={formData.age}
+                  onChange={(e) => updateField("age", e.target.value)}
+                  placeholder="العمر"
+                  className="print:border-0 print:border-b-2 print:border-gray-400 print:rounded-none print:bg-transparent print:px-1"
+                />
+              </div>
+            </div>
+
+            {/* Diagnosis */}
+            <div className="space-y-2 mb-6 print:mb-4">
+              <Label htmlFor="diagnosis" className="text-sm font-medium">
+                التشخيص
+              </Label>
+              <Textarea
+                id="diagnosis"
+                value={formData.diagnosis}
+                onChange={(e) => updateField("diagnosis", e.target.value)}
+                placeholder="وصف حالة المريض والتشخيص..."
+                className="min-h-[80px] print:border-2 print:border-gray-400 print:rounded-none print:bg-transparent print:p-2"
               />
-            </form>
-          </Form>
-          
+            </div>
+
+            {/* Prescription Section */}
+            <div className="space-y-2 mb-6 print:mb-4">
+              <div className="flex items-center gap-2 mb-4 print:mb-2">
+                <div className="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold text-lg print:bg-blue-600 print:text-white">
+                  ℞
+                </div>
+                <Label className="text-lg font-semibold">العلاج الموصوف</Label>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setIsMedicineDialogOpen(true)}
+                  className="mr-auto print:hidden"
+                >
+                  <Pill className="w-4 h-4 mr-2" />
+                  إضافة دواء
+                </Button>
+              </div>
+
+              <Textarea
+                value={formData.prescription}
+                onChange={handlePrescriptionChange}
+                onKeyDown={handleKeyDown}
+                placeholder="* ابدأ بكتابة الأدوية والتعليمات..."
+                className="min-h-[200px] font-mono text-base leading-relaxed print:border-2 print:border-gray-400 print:rounded-none print:bg-transparent print:p-2"
+              />
+            </div>
+
+            {/* Doctor Info and Signature */}
+            <div className="flex justify-between items-end pt-8 border-t print:pt-4 print:border-t-2 print:border-gray-400">
+              <div className="space-y-2">
+                <Label htmlFor="doctorName" className="text-sm font-medium">
+                  اسم الطبيب *
+                </Label>
+                <Input
+                  id="doctorName"
+                  value={formData.doctorName}
+                  onChange={(e) => updateField("doctorName", e.target.value)}
+                  placeholder="اسم الطبيب"
+                  className="w-48 print:border-0 print:border-b-2 print:border-gray-400 print:rounded-none print:bg-transparent print:px-1"
+                  required
+                />
+              </div>
+
+              <div className="text-center">
+                <p className="text-sm text-gray-600 mb-2">توقيع الطبيب</p>
+                <div className="relative w-40 h-16 border-b-2 border-gray-300 flex items-center justify-center">
+                  {formData.doctorSignature ? (
+                    <>
+                      <img
+                        src={formData.doctorSignature || "/placeholder.svg"}
+                        alt="توقيع الطبيب"
+                        className="h-12 w-auto cursor-pointer print:h-10"
+                        onClick={() => document.getElementById("signature-upload").click()}
+                      />
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        className="absolute -top-2 -right-2 w-6 h-6 p-0 print:hidden"
+                        onClick={() => removeImage("doctorSignature")}
+                      >
+                        <X className="w-3 h-3" />
+                      </Button>
+                    </>
+                  ) : (
+                    <label htmlFor="signature-upload" className="cursor-pointer print:hidden">
+                      <div className="flex items-center gap-1 text-xs text-zinc-600 hover:text-zinc-800">
+                        <Upload className="w-4 h-4" />
+                        تحميل التوقيع
+                      </div>
+                    </label>
+                  )}
+                  <input
+                    id="signature-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleImageUpload(e, "doctorSignature")}
+                    className="hidden"
+                  />
+                </div>
+              </div>
+
+              <div className="text-center">
+                <p className="text-sm text-gray-600">التاريخ</p>
+                <p className="font-semibold">{formData.date}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-4 pt-4 print:hidden">
+            <Button onClick={handleSave} className="flex-1 bg-green-600 hover:bg-green-700">
+              <Save className="w-4 h-4 mr-2" />
+              {selectedPrescription ? "تحديث" : "حفظ"}
+            </Button>
+            <Button onClick={handlePrint} variant="outline" className="flex-1 bg-transparent">
+              <Printer className="w-4 h-4 mr-2" />
+              طباعة
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
 
@@ -145,5 +328,5 @@ export function PrescriptionDialog({
         onAddMedicine={handleAddMedicine}
       />
     </>
-  );
+  )
 }

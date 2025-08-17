@@ -1,50 +1,72 @@
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { prescriptionDialogSchema } from "@/lib/utils";
-import { usePrescriptionStore } from "@/store/usePrescriptionStore";
+import { useState, useEffect } from "react"
 
-const defaultValues = {
+export const usePrescriptionForm = (selectedPrescription, isOpen) => {
+  const [formData, setFormData] = useState({
     clinicLogo: "",
     date: new Date().toISOString().split("T")[0],
     patientName: "",
-    gender: "",
+    gender: "ذكر",
     age: "",
     diagnosis: "",
     prescription: "",
     doctorName: "",
     doctorSignature: "",
-}
-
-export function usePrescriptionForm(selectedPrescription) {
-  const setPrescriptionData = usePrescriptionStore((s) => s.setPrescriptionData);
-
-  const form = useForm({
-    resolver: zodResolver(prescriptionDialogSchema),
-    defaultValues,
-  });
+  })
 
   useEffect(() => {
-    const values = selectedPrescription
-      ? {
+    if (isOpen) {
+      if (selectedPrescription) {
+        setFormData({
           clinicLogo: selectedPrescription.clinicLogo || "",
           date: selectedPrescription.date || new Date().toISOString().split("T")[0],
           patientName: selectedPrescription.patientName || "",
-          gender: selectedPrescription.gender || "",
+          gender: selectedPrescription.gender || "ذكر",
           age: selectedPrescription.age?.toString() || "",
           diagnosis: selectedPrescription.diagnosis || "",
           prescription: selectedPrescription.prescription || "",
           doctorName: selectedPrescription.doctorName || "",
           doctorSignature: selectedPrescription.doctorSignature || "",
-        }
-      : defaultValues;
-    form.reset(values);
-  }, [selectedPrescription, form]);
+        })
+      } else {
+        setFormData({
+          clinicLogo: "",
+          date: new Date().toISOString().split("T")[0],
+          patientName: "",
+          gender: "ذكر",
+          age: "",
+          diagnosis: "",
+          prescription: "",
+          doctorName: "",
+          doctorSignature: "",
+        })
+      }
+    }
+  }, [selectedPrescription, isOpen])
 
-  useEffect(() => {
-    const subscription = form.watch((values) => setPrescriptionData(values));
-    return () => subscription.unsubscribe();
-  }, [form, setPrescriptionData]);
+  const updateField = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }))
+  }
 
-  return form;
+  const handleImageUpload = (e, field) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        updateField(field, reader.result)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const removeImage = (field) => {
+    updateField(field, "")
+  }
+
+  return {
+    formData,
+    updateField,
+    handleImageUpload,
+    removeImage,
+    setFormData,
+  }
 }
