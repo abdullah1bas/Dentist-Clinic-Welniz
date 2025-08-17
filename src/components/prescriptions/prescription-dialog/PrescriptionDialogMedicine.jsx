@@ -1,33 +1,28 @@
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Pill } from "lucide-react";
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Pill } from "lucide-react"
+import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form"
 
-export default function PrescriptionDialogMedicine({
-  prescription,
-  onPrescriptionChange,
-  onOpenMedicineDialog,
-  handleInputChange
-}) {
+export default function PrescriptionDialogMedicine({ form, onOpenMedicineDialog }) {
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
-      const textarea = e.currentTarget;
-      const cursorPosition = textarea.selectionStart;
-      const value = textarea.value;
-      const beforeCursor = value.substring(0, cursorPosition);
-      const afterCursor = value.substring(cursorPosition);
-      const newValue = beforeCursor + "\n* " + afterCursor;
+      const textarea = e.currentTarget
+      const cursorPosition = textarea.selectionStart
+      const value = textarea.value
+      const beforeCursor = value.substring(0, cursorPosition)
+      const afterCursor = value.substring(cursorPosition)
+      const newValue = beforeCursor + "\n* " + afterCursor
 
-      handleInputChange("prescription", newValue);
+      form.setValue("prescription", newValue)
 
       setTimeout(() => {
-        textarea.selectionStart = textarea.selectionEnd = cursorPosition + 3;
-      }, 0);
+        textarea.selectionStart = textarea.selectionEnd = cursorPosition + 3
+      }, 0)
 
-      e.preventDefault();
+      e.preventDefault()
     }
-  };
-
+  }
   return (
     <div className="space-y-2 mb-6 print:mb-4">
       <div className="flex items-center gap-2 mb-4 print:mb-2">
@@ -47,13 +42,23 @@ export default function PrescriptionDialogMedicine({
         </Button>
       </div>
 
-      <Textarea
-        value={prescription}
-        onChange={onPrescriptionChange}
-        onKeyDown={handleKeyDown}
-        placeholder="* ابدأ بكتابة الأدوية والتعليمات..."
-        className="min-h-[200px] font-mono text-base bg-white text-black placeholder:text-gray-600 leading-relaxed print:text-black print:border-2 print:border-black print:rounded-none print:bg-transparent print:p-2"
+      <FormField
+        control={form.control}
+        name="prescription"
+        render={({ field }) => (
+          <FormItem>
+            <FormControl>
+              <Textarea
+                {...field}
+                onKeyDown={handleKeyDown}
+                placeholder="* ابدأ بكتابة الأدوية والتعليمات..."
+                className="min-h-[200px] font-mono text-base bg-white text-black placeholder:text-gray-600 leading-relaxed print:text-black print:border-2 print:border-black print:rounded-none print:bg-transparent print:p-2"
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
       />
     </div>
-  );
+  )
 }

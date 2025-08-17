@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
 
-export function ActionButtons({ isEditMode }) {
+export function ActionButtons({ isEditMode, onPrint }) {
+
   return (
     <div className="flex gap-4 pt-4 print:hidden">
       <Button type="submit" className="flex-1 bg-green-600 hover:bg-green-700 transition duration-300">
@@ -9,9 +10,9 @@ export function ActionButtons({ isEditMode }) {
       </Button>
       <Button
         type="button"
-        onClick={() => window.print()}
+        onClick={onPrint}
         variant="outline"
-        className="flex-1 bg-transparent transition duration-300"
+        className="flex-1 bg-gray-600 text-white hover:bg-gray-700 hover:text-white transition duration-300"
       >
         <Printer className="w-4 h-4 mr-2" />
         طباعة

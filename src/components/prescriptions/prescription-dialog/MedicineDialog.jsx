@@ -55,19 +55,19 @@ export function MedicineDialog({ open, onOpenChange, onAddMedicine }) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl text-white">
         <DialogHeader>
           <DialogTitle>اختيار الأدوية المقترحة</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 w-4 h-4" />
             <Input
               placeholder="ابحث عن الدواء..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="pl-10 bg-white text-black placeholder:text-gray-600"
             />
           </div>
 

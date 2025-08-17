@@ -19,31 +19,36 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Printer, Eye, FileText } from "lucide-react";
 import { Button } from "../ui/button";
+import { usePrescriptionStore } from "@/store/usePrescriptionStore";
 
-function PrescriptionOverview({
-  filteredPrescriptions,
-  paginatedPrescriptions,
-  itemsPerPage,
-  setItemsPerPage,
-  currentPage,
-  setCurrentPage,
-  setSelectedPrescription,
-  setIsDialogOpen
-}) {
+function PrescriptionOverview() {
+  const {
+    getFilteredPrescriptions,
+    getPaginatedPrescriptions,
+    getTotalPages,
+    pagination,
+    setPagination,
+    setSelectedPrescription,
+    setIsDialogOpen,
+  } = usePrescriptionStore();
+
+  const filteredPrescriptions = getFilteredPrescriptions();
+  const paginatedPrescriptions = getPaginatedPrescriptions();
+  const totalPages = getTotalPages();
+
   const handleEdit = (prescription) => {
     setSelectedPrescription(prescription);
     setIsDialogOpen(true);
   };
+
   const handlePrint = (prescription) => {
-    // فتح الروشتة في وضع الطباعة
-    setSelectedPrescription(prescription)
-    setIsDialogOpen(true)
-    // تأخير الطباعة قليلاً للسماح للـ dialog بالفتح
+    setSelectedPrescription(prescription);
+    setIsDialogOpen(true);
     setTimeout(() => {
-      window.print()
-    }, 500)
-  }
-  const totalPages = Math.ceil(filteredPrescriptions.length / itemsPerPage);
+      window.print();
+    }, 500);
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -72,16 +77,14 @@ function PrescriptionOverview({
               {paginatedPrescriptions.length > 0 ? (
                 paginatedPrescriptions.map((prescription) => (
                   <TableRow key={prescription.id} className="hover:bg-zinc-50">
-                    <TableCell className='text-right font-medium'>{prescription.id}</TableCell>
-                    <TableCell className='text-right'>{prescription.patientName}</TableCell>
-                    <TableCell className='text-right'>{prescription.doctorName}</TableCell>
-                    <TableCell className='text-right'>{prescription.date}</TableCell>
-                    <TableCell className='text-right'>{prescription.age}</TableCell>
-                    <TableCell className='text-right'>{prescription.gender}</TableCell>
-                    <TableCell className='text-right max-w-xs truncate'>
-                      {prescription.diagnosis}
-                    </TableCell>
-                    <TableCell className='text-right'>
+                    <TableCell className="text-right font-medium"> {prescription.id} </TableCell>
+                    <TableCell className="text-right"> {prescription.patientName} </TableCell>
+                    <TableCell className="text-right"> {prescription.doctorName} </TableCell>
+                    <TableCell className="text-right"> {prescription.date} </TableCell>
+                    <TableCell className="text-right"> {prescription.age} </TableCell>
+                    <TableCell className="text-right"> {prescription.gender} </TableCell>
+                    <TableCell className="text-right max-w-xs truncate"> {prescription.diagnosis} </TableCell>
+                    <TableCell className="text-right">
                       <Badge
                         variant={
                           prescription.status === "جديدة"
@@ -97,25 +100,25 @@ function PrescriptionOverview({
                         {prescription.status}
                       </Badge>
                     </TableCell>
-                    <TableCell className='text-right flex gap-2 justify-end'>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEdit(prescription)}
-                          title="عرض وتعديل"
-                          className="bg-blue-600 hover:bg-blue-700 text-white hover:text-white"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handlePrint(prescription)}
-                          title="طباعة"
-                          className="bg-gray-600 text-white hover:bg-gray-700 hover:text-white transition duration-300"
-                        >
-                          <Printer className="w-4 h-4" />
-                        </Button>
+                    <TableCell className="text-right flex gap-2 justify-end">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEdit(prescription)}
+                        title="عرض وتعديل"
+                        className="bg-blue-600 hover:bg-blue-700 text-white hover:text-white"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handlePrint(prescription)}
+                        title="طباعة"
+                        className="bg-gray-600 text-white hover:bg-gray-700 hover:text-white transition duration-300"
+                      >
+                        <Printer className="w-4 h-4" />
+                      </Button>
                       {/* <div className="flex gap-2 justify-end">
                       </div> */}
                     </TableCell>
@@ -141,10 +144,12 @@ function PrescriptionOverview({
             <div className="flex items-center gap-2">
               <Label>عدد الصفوف:</Label>
               <Select
-                value={itemsPerPage.toString()}
+                value={pagination.itemsPerPage.toString()}
                 onValueChange={(value) => {
-                  setItemsPerPage(Number(value));
-                  setCurrentPage(1);
+                  setPagination({
+                    itemsPerPage: Number(value),
+                    currentPage: 1,
+                  });
                 }}
               >
                 <SelectTrigger className="w-20">
@@ -162,21 +167,30 @@ function PrescriptionOverview({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                disabled={currentPage === 1}
+                onClick={() =>
+                  setPagination({
+                    currentPage: Math.max(1, pagination.currentPage - 1),
+                  })
+                }
+                disabled={pagination.currentPage === 1}
               >
                 السابق
               </Button>
               <span className="text-sm">
-                صفحة {currentPage} من {totalPages}
+                صفحة {pagination.currentPage} من {totalPages}
               </span>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() =>
-                  setCurrentPage(Math.min(totalPages, currentPage + 1))
+                  setPagination({
+                    currentPage: Math.min(
+                      totalPages,
+                      pagination.currentPage + 1
+                    ),
+                  })
                 }
-                disabled={currentPage === totalPages}
+                disabled={pagination.currentPage === totalPages}
               >
                 التالي
               </Button>

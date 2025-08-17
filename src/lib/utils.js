@@ -31,12 +31,12 @@ export const financialSchema = (categories) => z.object({
   }),
 });
 
-export const prescriptionDialogSchema = z.object({
+export const prescriptionDialogFormSchema = z.object({
   clinicLogo: z.string().optional(),
   date: z.string().min(1, "التاريخ مطلوب"),
   patientName: z.string().min(1, "اسم المريض مطلوب"),
-  gender: z.string().optional(),
-  age: z.union([z.string(), z.number()]).optional(),
+  gender: z.enum(["ذكر", "أنثى"]),
+  age: z.string().optional(),
   diagnosis: z.string().optional(),
   prescription: z.string().optional(),
   doctorName: z.string().min(1, "اسم الطبيب مطلوب"),
@@ -55,6 +55,8 @@ export const prescriptionFilterSchema = z.object({
 export const EXPENSE_CATEGORIES = ["معدات", "أدوية", "أجور", "صيانة", "أخرى"];
 export const INCOME_CATEGORIES = ["استشارات", "علاجات", "بيع أدوية", "خدمات أخرى", "أخرى"];
 export const ADDED_BY_OPTIONS = ["Admin", "Manager", "Staff"];
+export const prescriptionFIlterDoctors = ["جميع الأطباء", "د. محمد صادق", "د. سارة محمود"];
+export const prescriptionFilterStatuses = ["جميع الحالات", "جديدة", "مكتملة"];
 
 export function currency(n) {
   return n.toLocaleString("ar-EG", { style: "currency", currency: "EGP" });
