@@ -1,4 +1,4 @@
-import { usePrescriptionStore } from "@/store/usePrescriptionStore";
+import { usePrescriptionStore } from "@/stores/usePrescriptionStore";
 
 export default function PrescriptionPrintView({ formData = null }) {
   const { selectedPrescription } = usePrescriptionStore()

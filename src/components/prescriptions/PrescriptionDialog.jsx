@@ -7,7 +7,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
-import { usePrescriptionStore } from "@/store/usePrescriptionStore";
+import { usePrescriptionStore } from "@/stores/usePrescriptionStore";
 import { usePrescriptionForm } from "@/hooks/usePrescriptionForm";
 import PrescriptionDialogHeader from "./prescription-dialog/PrescriptionDialogHeader";
 import { PatientInfoSection } from "./prescription-dialog/PatientInfoSection";

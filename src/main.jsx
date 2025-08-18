@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import MainLayout from "./layout/MainLayout";
-import CasesheetsPage from "./pages/caseSheetsPage/CasesheetsPage";
+import CasesheetsPage from "./pages/patients/PatientsPage";
 
 import "./index.css";
 import NotesPage from "./pages/notesPage/NotesPage";

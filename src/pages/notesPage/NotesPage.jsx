@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Plus, ListOrdered, Trash2, Pencil } from "lucide-react";
 import NoteItem from "@/components/notes/NoteItem";
-import UserFooter from "@/components/notes/UserFooter";
+import UserFooter from "@/components/UserFooter";
 
 export default function NotesPage() {
   const [notes, setNotes] = useState([

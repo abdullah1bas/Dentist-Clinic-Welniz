@@ -19,7 +19,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Printer, Eye, FileText } from "lucide-react";
 import { Button } from "../ui/button";
-import { usePrescriptionStore } from "@/store/usePrescriptionStore";
+import { usePrescriptionStore } from "@/stores/usePrescriptionStore";
 
 function PrescriptionOverview() {
   const {

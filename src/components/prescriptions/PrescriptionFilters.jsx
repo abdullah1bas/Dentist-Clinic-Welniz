@@ -12,7 +12,7 @@ import {
 } from "../ui/select";
 import { Button } from "../ui/button";
 import { useDebounce } from "use-debounce";
-import { usePrescriptionStore } from "@/store/usePrescriptionStore";
+import { usePrescriptionStore } from "@/stores/usePrescriptionStore";
 import { prescriptionFIlterDoctors, prescriptionFilterStatuses } from "@/lib/utils";
 
 function PrescriptionFilters() {

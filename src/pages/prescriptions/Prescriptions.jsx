@@ -3,7 +3,7 @@ import { Plus } from "lucide-react";
 import PrescriptionFilters from "@/components/prescriptions/PrescriptionFilters";
 import PrescriptionOverview from "@/components/prescriptions/PrescriptionOverview";
 import { PrescriptionDialog } from "@/components/prescriptions/PrescriptionDialog";
-import { usePrescriptionStore } from "@/store/usePrescriptionStore";
+import { usePrescriptionStore } from "@/stores/usePrescriptionStore";
 
 export default function Prescriptions() {
   const { setSelectedPrescription, setIsDialogOpen } = usePrescriptionStore();
