@@ -6,12 +6,15 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Filter, Search } from "lucide-react"
 import { useDebounce } from "use-debounce"
-import { useDentalStore } from "@/stores/dental-store"
+import { usePatientsStore } from "@/stores/patientsStore"
+import { useConstantsStore } from "@/stores/constantsStore"
 
 const statuses = ["جميع الحالات", "مستمرة", "انتهت"]
 
 function PatientFilters() {
-  const { filters, setFilters, clearFilters, getFilteredPatients, getPaginatedPatients, categories } = useDentalStore()
+  const { categories } = useConstantsStore();
+  const { filters, setFilters, clearFilters, getFilteredPatients, getPaginatedPatients } = usePatientsStore();
+
 
   const [searchValue, setSearchValue] = useState(filters.search)
   const [debouncedSearch] = useDebounce(searchValue, 500)

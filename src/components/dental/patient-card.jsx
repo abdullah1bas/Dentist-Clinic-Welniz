@@ -2,11 +2,11 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Phone, MessageCircle, Calendar, Eye, User } from "lucide-react"
-import { useDentalStore } from "@/stores/dental-store"
 import { useNavigate } from "react-router-dom"
+import { useUIStore } from "@/stores/uiStore"
 
 export function PatientCard({ patient }) {
-  const { setSelectedPatient, setIsDialogOpen } = useDentalStore();
+  const { setSelectedPatient, setIsDialogOpen } = useUIStore();
   const navigate = useNavigate();
 
   const handleCall = () => {

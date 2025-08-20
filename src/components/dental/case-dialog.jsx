@@ -2,24 +2,22 @@ import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useDentalStore } from "@/stores/dental-store"
 import { PatientInfoSection } from "./case-sections/patient-info-section"
 import { FinanceSection } from "./case-sections/finance-section"
 import { ExpensesSection } from "./case-sections/expenses-section"
 import { CasePresentationSection } from "./case-sections/case-presentation-section"
 import { Save, Trash2, X } from "lucide-react"
+import { useUIStore } from "@/stores/uiStore"
+import { usePatientsStore } from "@/stores/patientsStore"
 
 export function CaseDialog() {
   console.log('caseDialog')
   const {
-    isDialogOpen,
-    setIsDialogOpen,
-    selectedPatient,
-    setSelectedPatient,
     addPatient,
     updatePatient,
     deletePatient,
-  } = useDentalStore()
+  } = usePatientsStore()
+  const { setSelectedPatient, selectedPatient, isDialogOpen, setIsDialogOpen, } = useUIStore();
 
   const [activeTab, setActiveTab] = useState("patient-info")
   const [formData, setFormData] = useState({

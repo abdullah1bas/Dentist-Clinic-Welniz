@@ -6,10 +6,12 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Upload, X, Save } from "lucide-react"
-import { useDentalStore } from "@/stores/dental-store"
+import { usePatientsStore } from "@/stores/patientsStore"
+import { useConstantsStore } from "@/stores/constantsStore"
 
 export function ExpenseDialog({ isOpen, onClose, selectedPatient, selectedExpense }) {
-  const { addExpense, expenseTypes, currencies } = useDentalStore()
+  const { expenseTypes, currencies } = useConstantsStore();
+  const { addExpense } = usePatientsStore();
   const [formData, setFormData] = useState({
     type: "مواد العيادة",
     description: "",

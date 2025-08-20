@@ -8,10 +8,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { DollarSign, Plus, Trash2 } from "lucide-react"
-import { useDentalStore } from "@/stores/dental-store"
+import { useUIStore } from "@/stores/uiStore"
+import { usePatientsStore } from "@/stores/patientsStore"
+import { useConstantsStore } from "@/stores/constantsStore"
 
-export function FinanceSection({ formData, updateFormData, selectedPatient }) {
-  const { addPayment, exchangeRate, paymentMethods, currencies } = useDentalStore()
+export function FinanceSection({ formData, updateFormData }) {
+  const { exchangeRate, paymentMethods, currencies } = useConstantsStore();
+  const { addPayment } = usePatientsStore();
+  const { selectedPatient } = useUIStore();
   const [newPayment, setNewPayment] = useState({
     amount: "",
     currency: "EGP",

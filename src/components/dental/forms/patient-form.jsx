@@ -5,10 +5,10 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Upload, X, User } from "lucide-react"
-import { useDentalStore } from "@/stores/dental-store"
+import { useConstantsStore } from "@/stores/constantsStore"
 
 export function PatientForm({ form }) {
-  const { categories, doctors, currencies } = useDentalStore()
+  const { categories, doctors, currencies } = useConstantsStore();
 
   const handleImageUpload = (e) => {
     const file = e.target.files?.[0]

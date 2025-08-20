@@ -7,10 +7,14 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Plus, Upload, FileText, Stethoscope, X } from "lucide-react"
-import { useDentalStore } from "@/stores/dental-store"
+import { useUIStore } from "@/stores/uiStore"
+import { usePatientsStore } from "@/stores/patientsStore"
+import { useConstantsStore } from "@/stores/constantsStore"
 
-export function CasePresentationSection({ formData, updateFormData, selectedPatient }) {
-  const { doctors, addCaseNote } = useDentalStore()
+export function CasePresentationSection({ formData, updateFormData }) {
+  const { doctors } = useConstantsStore();
+  const { addCaseNote } = usePatientsStore();
+  const { selectedPatient } = useUIStore();
   const [newNote, setNewNote] = useState("")
 
   const handleTeethCountChange = (position, value) => {

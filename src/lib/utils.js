@@ -61,3 +61,112 @@ export const prescriptionFilterStatuses = ["جميع الحالات", "جديد�
 export function currency(n) {
   return n.toLocaleString("ar-EG", { style: "currency", currency: "EGP" });
 }
+
+
+// Initial mock data
+export const initialPatients = [
+  {
+  id: "P001",
+  name: "أحمد محمد علي",
+  phone: "01234567890",
+  address: "القاهرة، مصر",
+  occupation: "مهندس",
+  gender: "ذكر",
+  age: 35,
+  systemicConditions: "لا يوجد",
+  notes: "مريض منتظم",
+  category: "علاج تحفظي",
+  profileImage: "",
+  status: "مستمرة",
+  createdDate: "2025-01-15",
+
+  // 🟢 Financial data (مدفوعات المريض)
+  totalAmount: 2000,
+  currency: "EGP",
+  paidAmount: 1500,
+  remainingAmount: 500,
+  payments: [
+    {
+      id: "PAY001",
+      amount: 1000,
+      currency: "EGP",
+      date: "2025-01-15",
+      method: "كاش",
+      description: "دفعة أولى",
+    },
+    {
+      id: "PAY002",
+      amount: 500,
+      currency: "EGP",
+      date: "2025-01-20",
+      method: "كارت",
+      description: "دفعة ثانية",
+    },
+  ],
+
+  // 🟢 Expenses (مصروفات مرتبطة بالمريض أو العيادة)
+  expenses: [
+    {
+      id: "EXP001",
+      type: "مواد العيادة",
+      description: "حشوات كومبوزيت",
+      amount: 200,
+      currency: "EGP",
+      date: "2025-01-15",
+      image: "",
+    },
+  ],
+
+  // 🟢 Case presentation (حالة المريض)
+  doctor: "د. محمد صادق",
+  teethAffected: {
+    upperLeft: 2,
+    upperRight: 1,
+    lowerLeft: 0,
+    lowerRight: 1,
+  },
+  caseNotes: [
+    {
+      id: "NOTE001",
+      note: "تم البدء في العلاج التحفظي",
+      date: "2025-01-15",
+    },
+  ],
+  drawingImage: "",
+
+  // 🟢 Prescriptions (روشتات المريض)
+  prescriptions: [
+    {
+    id: "RX001",
+    patientName: "أحمد محمد علي",
+    doctorName: "د. محمد صادق",
+    date: "2025-01-15",
+    age: 35,
+    gender: "ذكر",
+    diagnosis: "التهاب اللثة",
+    prescription:
+      "* أموكسيسيلين 500 مجم - كبسولة كل 8 ساعات لمدة 7 أيام\n* إيبوبروفين 400 مجم - قرص كل 6 ساعات عند الحاجة",
+    status: "مكتملة",
+    clinicLogo: "",
+    doctorSignature: "",
+  },
+  {
+    id: "RX002",
+    patientName: "فاطمة أحمد",
+    doctorName: "د. سارة محمود",
+    date: "2025-01-14",
+    age: 28,
+    gender: "أنثى",
+    diagnosis: "تسوس الأسنان",
+    prescription:
+      "* باراسيتامول 500 مجم - قرص كل 6 ساعات عند الحاجة\n* كلورهيكسيدين غسول فم - مضمضة مرتين يومياً لمدة أسبوع",
+    status: "جديدة",
+    clinicLogo: "",
+    doctorSignature: "",
+  },
+  ],
+
+  // 🟢 هنا ممكن تضيف بيانات إضافية بعدين
+  // مثلا مواعيد (appointments) أو صور (attachments) أو تحاليل (labs)
+}
+];

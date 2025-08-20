@@ -12,6 +12,10 @@ import Appointments from "./pages/appointments/Appointments";
 import Expenses from "./pages/expenses/Expenses";
 import Income from "./pages/income/Income";
 import Prescriptions from "./pages/prescriptions/Prescriptions";
+import DentalChartPage from "./components/dental/dental-chart";
+// import { DentalChartPage } from "./components/dental/dental-chart";
+// import DentalCanvasAnnotator from "./components/dental/dental-annotated";
+// import { DentalChartRefactored } from "./components/dental/dental-chart/dental-chart-refactored";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -25,6 +29,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/expenses" element={<Expenses />} />
           <Route path="/income" element={<Income />} />
           <Route path="/prescriptions" element={<Prescriptions />} />
+          <Route path="/dental-annotated" element={<DentalChartPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
