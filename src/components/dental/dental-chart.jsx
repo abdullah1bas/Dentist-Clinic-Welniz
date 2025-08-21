@@ -1,10 +1,9 @@
 
 import { useState, useRef, useCallback, useEffect, useMemo } from "react"
-import { CANVAS_SIZE, DrawingCanvas } from "./dental-annotated/drawing-canvas"
+import { DrawingCanvas } from "./dental-annotated/drawing-canvas"
 import { useCanvasDrawing } from "@/hooks/use-canvas-drawing"
 import { NoteDialog } from "./dental-annotated/note-dialog"
-import { MODES } from "./dental-annotated/mode-selector"
-import { createFallbackSvg, exportCanvasToPNG, uid } from "@/lib/dental-chart-utils"
+import { createFallbackSvg, exportCanvasToPNG, MODES, uid, CANVAS_SIZE } from "@/lib/dental-chart-utils"
 import { DentalChartHeader } from "./dental-annotated/dental-chart-header"
 import { DentalChartToolbar } from "./dental-annotated/dental-chart-toolbar"
 import { DentalChartStats } from "./dental-annotated/dental-chart-stats"
@@ -20,7 +19,6 @@ export default function DentalChartPage() {
   const [selectedPatient, setSelectedPatient] = useState(null)
 
   // Canvas state
-  const [bgUrl, setBgUrl] = useState("/dental-chart.svg")
   const [notes, setNotes] = useState([])
   const [activeMode, setActiveMode] = useState(MODES.DRAW)
   const [color, setColor] = useState("#0ea5e9")
@@ -57,37 +55,34 @@ export default function DentalChartPage() {
     }
   }, [])
 
-  // Load background image
+  // تحميل صورة الخلفية من المشروع (ثابتة)
   useEffect(() => {
-    const img = new Image()
-    img.crossOrigin = "anonymous"
+    const img = new Image();
     img.onload = () => {
-      bgImageRef.current = img
-      drawBase()
-    }
-    img.onerror = () => {
-      const fallbackImg = new Image()
-      fallbackImg.onload = () => {
-        bgImageRef.current = fallbackImg
-        drawBase()
-      }
-      fallbackImg.src = createFallbackSvg()
-    }
-    img.src = bgUrl
-  }, [bgUrl, drawBase])
+      bgImageRef.current = img;
+      drawBase();
+    };
+    img.src = "/dental-chart.svg"; // ✅ ثابتة
+  }, [drawBase]);
 
-  // Event handlers
-  const posFromEvent = useCallback(
-    (e) => {
-      const rect = e.target.getBoundingClientRect()
-      return {
-        x: (e.clientX - rect.left - offset.x) / zoom,
-        y: (e.clientY - rect.top - offset.y) / zoom,
-      }
-    },
-    [offset, zoom],
-  )
+  // event helper → يجيب مكان الماوس بالنسبة للكانفاس
+  const posFromEvent = useCallback((e) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
+    
+    const rect = canvas.getBoundingClientRect();
+    
+    // حساب نسبة القياس بناءً على الحجم الحقيقي والعرض المعروض
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    
+    return {
+      x: (e.clientX - rect.left - offset.x) * scaleX / zoom,
+      y: (e.clientY - rect.top - offset.y) * scaleY / zoom,
+    };
+  }, [canvasRef, offset, zoom]);
 
+  // الضغط بالماوس (يبدأ الرسم أو التحريك)
   const handlePointerDown = useCallback(
     (e) => {
       if (activeMode === MODES.DRAW) {
@@ -107,6 +102,7 @@ export default function DentalChartPage() {
     [activeMode, posFromEvent, snapshot, offset, zoom],
   )
 
+  // التحريك بالماوس
   const handlePointerMove = useCallback(
     (e) => {
       if (activeMode === MODES.DRAW && isDrawing) {
@@ -131,10 +127,12 @@ export default function DentalChartPage() {
     [activeMode, isDrawing, posFromEvent, color, brushSize, zoom],
   )
 
+  // رفع الماوس → إنهاء الرسم/التحريك
   const handlePointerUp = useCallback(() => {
     setIsDrawing(false)
   }, [])
 
+  // تكبير/تصغير بالرول (zoom in/out) → يمنع سكرول الصفحة
   const handleWheel = useCallback(
     (e) => {
       if (activeMode !== MODES.PAN) return
@@ -245,78 +243,6 @@ export default function DentalChartPage() {
     exportCanvasToPNG(canvasRef, overlayRef, `dental-chart-${selectedPatient?.name || "patient"}`)
   }, [selectedPatient])
 
-  const onUploadBackground = useCallback((e) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    const reader = new FileReader()
-    reader.onload = () => setBgUrl(reader.result)
-    reader.readAsDataURL(file)
-  }, [])
-
-  const handlePrint = useCallback(() => {
-    const printWindow = window.open("", "_blank")
-    if (printWindow) {
-      printWindow.document.write(`
-        <html dir="rtl">
-          <head>
-            <title>مخطط الأسنان - ${selectedPatient?.name || "مريض"}</title>
-            <style>
-              body { font-family: Arial, sans-serif; padding: 20px; text-align: center; direction: rtl; margin: 0; }
-              .header { margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 20px; }
-              .chart-area { border: 2px solid #333; padding: 20px; margin: 20px 0; min-height: 400px; background: #f9f9f9; }
-              .notes { text-align: right; margin-top: 20px; }
-              .note-item { background: #fff3cd; border: 1px solid #ffeaa7; padding: 10px; margin: 10px 0; border-radius: 5px; }
-            </style>
-          </head>
-          <body>
-            <div class="header">
-              <h1>مخطط الأسنان التفاعلي</h1>
-              <h2>المريض: ${selectedPatient?.name || "غير محدد"}</h2>
-              <p>التاريخ: ${new Date().toLocaleDateString("ar-SA")}</p>
-            </div>
-            <div class="chart-area">
-              <h3>مخطط الأسنان مع الملاحظات</h3>
-              <p>عدد الملاحظات: ${notes.length}</p>
-            </div>
-            ${
-              notes.length > 0
-                ? `
-              <div class="notes">
-                <h3>الملاحظات الطبية:</h3>
-                ${notes
-                  .map(
-                    (note, index) => `
-                  <div class="note-item">
-                    <strong>ملاحظة ${index + 1}:</strong> ${note.text}
-                  </div>
-                `,
-                  )
-                  .join("")}
-              </div>
-            `
-                : ""
-            }
-          </body>
-        </html>
-      `)
-      printWindow.document.close()
-      printWindow.print()
-    }
-  }, [selectedPatient, notes])
-
-  const handleSave = useCallback(() => {
-    const chartData = {
-      patient: selectedPatient,
-      notes,
-      zoom,
-      offset,
-      timestamp: new Date().toISOString(),
-    }
-
-    localStorage.setItem(`dental-chart-${selectedPatient?.id || "temp"}`, JSON.stringify(chartData))
-    alert("تم حفظ مخطط الأسنان بنجاح!")
-    handlePrint()
-  }, [selectedPatient, notes, zoom, offset, handlePrint])
 
   const noteDragHandlers = useMemo(
     () => ({
@@ -329,7 +255,7 @@ export default function DentalChartPage() {
 
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">
-      <DentalChartHeader selectedPatient={selectedPatient} onPrint={handlePrint} onSave={handleSave} />
+      <DentalChartHeader />
 
       <div className="max-w-7xl mx-auto p-4">
         <DentalChartToolbar
@@ -342,7 +268,6 @@ export default function DentalChartPage() {
           onUndo={restore}
           onClearDrawing={clearDrawing}
           onClearNotes={() => setNotes([])}
-          onUploadBackground={onUploadBackground}
           onExport={handleExport}
           canUndo={canUndo}
         />
@@ -379,6 +304,10 @@ export default function DentalChartPage() {
         onTextChange={setNoteDraft}
         onColorChange={setNoteColor}
       />
+
+      <article className="w-full h-screen bg-background">
+        <img className="size-full" src="/dental-chart.svg" alt="" />
+      </article>
     </div>
   )
 }

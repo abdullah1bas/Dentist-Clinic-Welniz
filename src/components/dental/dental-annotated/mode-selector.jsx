@@ -1,9 +1,7 @@
-
-import React from "react"
-import { Brush, StickyNote, Move } from "lucide-react"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-
-export const MODES = { DRAW: "draw", NOTE: "note", PAN: "pan" }
+import React from "react";
+import { Brush, StickyNote, Move } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { MODES } from "@/lib/dental-chart-utils";
 
 export const ModeSelector = React.memo(({ activeMode, onModeChange }) => (
   <Tabs value={activeMode} onValueChange={onModeChange} className="w-fit">
@@ -22,5 +20,4 @@ export const ModeSelector = React.memo(({ activeMode, onModeChange }) => (
       </TabsTrigger>
     </TabsList>
   </Tabs>
-))
-
+));

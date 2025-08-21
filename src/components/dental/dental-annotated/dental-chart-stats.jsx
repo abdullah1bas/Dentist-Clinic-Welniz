@@ -1,4 +1,4 @@
-import { MODES } from "./mode-selector"
+import { MODES } from "@/lib/dental-chart-utils"
 
 export const DentalChartStats = ({ notes, zoom, brushSize, activeMode }) => {
   const getModeText = (mode) => {

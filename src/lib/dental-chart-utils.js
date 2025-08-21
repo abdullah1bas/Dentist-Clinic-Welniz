@@ -52,3 +52,6 @@ export const exportCanvasToPNG = async (canvasRef, overlayRef, filename = "denta
     console.error("Export failed:", error)
   }
 }
+
+export const MODES = { DRAW: "draw", NOTE: "note", PAN: "pan" };
+export const CANVAS_SIZE = { width: 1000, height: 700 };

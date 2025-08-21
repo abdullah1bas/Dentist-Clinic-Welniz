@@ -14,7 +14,6 @@ export const DentalChartToolbar = ({
   onUndo,
   onClearDrawing,
   onClearNotes,
-  onUploadBackground,
   onExport,
   canUndo,
 }) => {
@@ -30,7 +29,6 @@ export const DentalChartToolbar = ({
             onUndo={onUndo}
             onClearDrawing={onClearDrawing}
             onClearNotes={onClearNotes}
-            onUploadBackground={onUploadBackground}
             onExport={onExport}
             canUndo={canUndo}
           />

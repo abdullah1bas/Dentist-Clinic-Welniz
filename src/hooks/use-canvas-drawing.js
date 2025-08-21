@@ -1,39 +1,43 @@
 
 import { useState, useCallback } from "react"
 
+// hook مسئول عن رسم الكانفاس والخلفية
 export const useCanvasDrawing = (canvasRef, bgImageRef, size, offset, zoom) => {
   const [history, setHistory] = useState([])
 
+  // رسم الخلفية + أي محتوى موجود
   const drawBase = useCallback(() => {
-    const canvas = canvasRef.current
-    const ctx = canvas?.getContext("2d")
-    if (!canvas || !ctx) return
+  const canvas = canvasRef.current;
+  const ctx = canvas?.getContext("2d");
+  if (!canvas || !ctx) return;
 
-    canvas.width = size.width
-    canvas.height = size.height
+  // الحفاظ على الأبعاد الأصلية للكانفاس
+  canvas.width = 1000;
+  canvas.height = 700;
+  
+  ctx.save();
+  ctx.translate(offset.x, offset.y);
+  ctx.scale(zoom, zoom);
+  
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, 1000 / zoom, 700 / zoom);
+  
+  const img = bgImageRef.current;
+  if (img) {
+    const scale = Math.min(1000 / img.width, 700 / img.height) * zoom;
+    const iw = img.width * scale;
+    const ih = img.height * scale;
+    const ix = (1000 - iw) / 2 / zoom;
+    const iy = (700 - ih) / 2 / zoom;
+    
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(img, ix, iy, iw, ih);
+  }
+  
+  ctx.restore();
+}, [canvasRef, bgImageRef, offset, zoom]);
 
-    ctx.save()
-    ctx.translate(offset.x, offset.y)
-    ctx.scale(zoom, zoom)
-
-    ctx.fillStyle = "#ffffff"
-    ctx.fillRect(0, 0, size.width / zoom, size.height / zoom)
-
-    const img = bgImageRef.current
-    if (img) {
-      const scale = Math.min(size.width / img.width, size.height / img.height) * zoom
-      const iw = img.width * scale
-      const ih = img.height * scale
-      const ix = (size.width - iw) / 2 / zoom
-      const iy = (size.height - ih) / 2 / zoom
-
-      ctx.imageSmoothingEnabled = true
-      ctx.drawImage(img, ix, iy, iw, ih)
-    }
-
-    ctx.restore()
-  }, [canvasRef, bgImageRef, size, offset, zoom])
-
+  // snapshot للحفظ في history عشان التراجع
   const snapshot = useCallback(() => {
     const canvas = canvasRef.current
     const ctx = canvas?.getContext("2d")
@@ -41,12 +45,13 @@ export const useCanvasDrawing = (canvasRef, bgImageRef, size, offset, zoom) => {
 
     try {
       const data = ctx.getImageData(0, 0, canvas.width, canvas.height)
-      setHistory((prev) => [...prev.slice(-9), data])
+      setHistory((prev) => [...prev.slice(-9), data]) // احتفاظ بآخر 10 خطوات
     } catch (error) {
       console.warn("Failed to create snapshot:", error)
     }
   }, [canvasRef])
 
+  // استرجاع آخر خطوة (undo)
   const restore = useCallback(() => {
     const canvas = canvasRef.current
     const ctx = canvas?.getContext("2d")
@@ -63,6 +68,7 @@ export const useCanvasDrawing = (canvasRef, bgImageRef, size, offset, zoom) => {
     })
   }, [canvasRef, history, drawBase, offset])
 
+  // مسح الرسم
   const clearDrawing = useCallback(() => {
     drawBase()
     setHistory([])

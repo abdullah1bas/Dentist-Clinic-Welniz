@@ -1,8 +1,5 @@
-
 import React, { useCallback } from "react"
 import { Note } from "./note-component"
-
-export const CANVAS_SIZE = { width: 1000, height: 700 }
 
 export const DrawingCanvas = React.memo(
   ({
@@ -39,15 +36,18 @@ export const DrawingCanvas = React.memo(
     return (
       <div
         className="relative w-full h-60 sm:h-96 md:h-screen overflow-hidden rounded-2xl border shadow-inner select-none"
-        // style={{ width: CANVAS_SIZE.width, height: CANVAS_SIZE.height }}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
       >
         <canvas
           ref={canvasRef}
-          className="absolute inset-0 cursor-crosshair w-full"
-          style={{ cursor: activeMode === "pan" ? "grab" : "crosshair" }}
+          className="absolute inset-0 cursor-crosshair"
+          style={{ 
+            cursor: activeMode === "pan" ? "grab" : "crosshair",
+            width: "100%",
+            height: "100%"
+          }}
           onMouseDown={onPointerDown}
           onMouseMove={onPointerMove}
           onMouseUp={onPointerUp}
@@ -57,9 +57,9 @@ export const DrawingCanvas = React.memo(
 
         <svg
           ref={overlayRef}
-          className="absolute inset-0 size-full pointer-events-none bg-background/30"
-        //   width={CANVAS_SIZE.width}
-        //   height={CANVAS_SIZE.height}
+          className="absolute inset-0 pointer-events-none bg-background/30"
+          viewBox={`0 0 1000 700`}
+          preserveAspectRatio="xMidYMid meet"
         >
           {notes.map((note) => (
             <g key={note.id}>
@@ -97,4 +97,3 @@ export const DrawingCanvas = React.memo(
     )
   },
 )
-
