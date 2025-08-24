@@ -10,7 +10,7 @@ export const Note = React.memo(({ note, zoom, offset, onStartDrag, onEdit }) => 
       transform: `scale(${Math.max(0.8, zoom)})`,
       transformOrigin: "top left",
     }}
-    // onMouseDown={(e) => onStartDrag(e, note.id)}
+    onMouseDown={(e) => onStartDrag(e, note.id)}
   >
     <div
       className="border rounded-xl shadow-lg p-3 text-sm max-w-[220px] cursor-move transition-all hover:shadow-xl"

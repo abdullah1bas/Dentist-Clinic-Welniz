@@ -2,7 +2,7 @@
 import { useState, useCallback } from "react"
 
 // hook مسئول عن رسم الكانفاس والخلفية
-export const useCanvasDrawing = (canvasRef, bgImageRef, size, offset, zoom) => {
+export const useCanvasDrawing = (canvasRef, bgImageRef, offset, zoom) => {
   const [history, setHistory] = useState([])
 
   // رسم الخلفية + أي محتوى موجود

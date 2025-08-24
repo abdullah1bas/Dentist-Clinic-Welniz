@@ -53,5 +53,22 @@ export const exportCanvasToPNG = async (canvasRef, overlayRef, filename = "denta
   }
 }
 
+// event helper → يجيب مكان الماوس بالنسبة للكانفاس
+export const posFromEvent = (e , offset, canvasRef, zoom) => {
+  const canvas = canvasRef.current;
+  if (!canvas) return { x: 0, y: 0 };
+  
+  const rect = canvas.getBoundingClientRect();
+  
+  // حساب نسبة القياس بناءً على الحجم الحقيقي والعرض المعروض
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  
+  return {
+    x: (e.clientX - rect.left - offset.x) * scaleX / zoom,
+    y: (e.clientY - rect.top - offset.y) * scaleY / zoom,
+  };
+};
+
 export const MODES = { DRAW: "draw", NOTE: "note", PAN: "pan" };
 export const CANVAS_SIZE = { width: 1000, height: 700 };
