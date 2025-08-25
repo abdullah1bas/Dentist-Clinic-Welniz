@@ -2,7 +2,7 @@ import React from "react";
 import { Brush, StickyNote, Move } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MODES } from "@/lib/dental-chart-utils";
-import { useCanvasStore } from "@/stores/use-canvas-store";
+import { useCanvasStore } from "@/stores/canvas/use-canvas-store";
 
 export const ModeSelector = React.memo(() => {
   const {activeMode, setActiveMode} = useCanvasStore();

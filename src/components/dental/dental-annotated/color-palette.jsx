@@ -1,6 +1,6 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { useCanvasStore } from "@/stores/use-canvas-store";
+import { useCanvasStore } from "@/stores/canvas/use-canvas-store";
 
 const DEFAULT_COLORS = [
   "#ef4444",

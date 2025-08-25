@@ -2,7 +2,7 @@ import React from "react";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { Brush } from "lucide-react";
-import { useCanvasStore } from "@/stores/use-canvas-store";
+import { useCanvasStore } from "@/stores/canvas/use-canvas-store";
 
 export const BrushSizeControl = React.memo(() => {
   const { brushSize, setBrushSize } = useCanvasStore();

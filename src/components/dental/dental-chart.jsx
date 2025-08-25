@@ -5,7 +5,7 @@ import { NoteDialog } from "./dental-annotated/note-dialog";
 import { DentalChartHeader } from "./dental-annotated/dental-chart-header";
 import { DentalChartToolbar } from "./dental-annotated/dental-chart-toolbar";
 import { DentalChartStats } from "./dental-annotated/dental-chart-stats";
-import { useCanvasStore } from "@/stores/use-canvas-store";
+import { useCanvasStore } from "@/stores/canvas/use-canvas-store";
 import { useUIStore } from "@/stores/uiStore";
 
 export default function DentalChartPage() {
@@ -20,7 +20,7 @@ export default function DentalChartPage() {
   // 📌 canvas store
   const { zoom, offset } = useCanvasStore();
 
-  const { drawBase, snapshot } =
+  const { drawBase, snapshot, restore} =
     useCanvasDrawing(canvasRef, bgImageRef, offset, zoom);
 
   // Load patient data
@@ -58,7 +58,10 @@ export default function DentalChartPage() {
             canvasRef={canvasRef}
             dragOffset={dragOffset}
             overlayRef={overlayRef}
+            drawBase={drawBase}
             snapshot={snapshot}
+            restore={restore}
+            bgImageRef={bgImageRef}
           />
         </div>
 

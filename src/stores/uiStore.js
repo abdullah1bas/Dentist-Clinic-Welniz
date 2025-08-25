@@ -30,19 +30,4 @@ export const useUIStore = create((set) => ({
         console.error("Failed to load patient:", e);
       }
     },
-
-    showNoteChartDialog: false,
-    setShowNoteChartDialog: (v) => set(() => ({ showNoteChartDialog: v })),
-
-    editingNoteChartId: null,
-    setEditingNoteChartId: (id) => set(() => ({ editingNoteChartId: id })),
-
-    noteDraft: "",
-    setNoteDraft: (t) => set(() => ({ noteDraft: t })),
-
-    noteColor: "#fef9c3",
-    setNoteColor: (c) => set(() => ({ noteColor: c })),
-
-    dblPoint: null,
-    setDblPoint: (p) => set(() => ({ dblPoint: p })),
 }))

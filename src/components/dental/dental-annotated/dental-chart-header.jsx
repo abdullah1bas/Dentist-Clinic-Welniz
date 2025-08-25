@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useUIStore } from "@/stores/uiStore";
-import { useCanvasStore } from "@/stores/use-canvas-store";
-import { useNotesStore } from "@/stores/use-notes-chart-store";
+import { useCanvasStore } from "@/stores/canvas/use-canvas-store";
+import { useNotesStore } from "@/stores/canvas/use-notes-chart-store";
 import { ArrowLeft, Home, Save, Printer } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 

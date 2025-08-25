@@ -10,14 +10,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
-import { useNotesStore } from "@/stores/use-notes-chart-store";
+import { useNotesStore } from "@/stores/canvas/use-notes-chart-store";
+import { useNotesDataStore } from "@/stores/canvas/use-notes-store";
 
 export const NoteDialog = React.memo(() => {
     // 📌 notes store
-      const {
-        noteDraft, noteColor, editingNoteId, dblPoint, addNote, updateNote, deleteNote,
-        setNoteDraft, setNoteColor, setDblPoint, setEditingNoteId, showNoteDialog, setShowNoteDialog
-      } = useNotesStore()
+    const {
+      noteDraft, noteColor, editingNoteId, dblPoint,
+      setNoteDraft, setNoteColor, setDblPoint, setEditingNoteId, showNoteDialog, setShowNoteDialog
+    } = useNotesStore();
+    const { addNote, updateNote, deleteNote, } = useNotesDataStore();
 
     // Note handlers
     const handleSaveNote = useCallback(() => {

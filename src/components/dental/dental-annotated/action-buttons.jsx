@@ -2,8 +2,8 @@ import React, { useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Undo, Eraser, Trash2, Upload, Download } from "lucide-react"
 import { useCanvasDrawing } from "@/hooks/use-canvas-drawing";
-import { useCanvasStore } from "@/stores/use-canvas-store";
-import { useNotesStore } from "@/stores/use-notes-chart-store";
+import { useCanvasStore } from "@/stores/canvas/use-canvas-store";
+import { useNotesStore } from "@/stores/canvas/use-notes-chart-store";
 import { useUIStore } from "@/stores/uiStore";
 import { exportCanvasToPNG } from "@/lib/dental-chart-utils";
 

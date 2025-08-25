@@ -14,6 +14,7 @@ import Income from "./pages/income/Income";
 import Prescriptions from "./pages/prescriptions/Prescriptions";
 import DentalChartPage from "./components/dental/dental-chart";
 import DentalCanvasAnnotator from "./components/dental/dental-annotated";
+import Step1_Basics from "./CanvasTest";
 // import { DentalChartPage } from "./components/dental/dental-chart";
 // import DentalCanvasAnnotator from "./components/dental/dental-annotated";
 // import { DentalChartRefactored } from "./components/dental/dental-chart/dental-chart-refactored";
@@ -32,6 +33,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/prescriptions" element={<Prescriptions />} />
           <Route path="/dental-annotated" element={<DentalChartPage />} />
           {/* <Route path="/dental-annotated" element={<DentalCanvasAnnotator />} /> */}
+          <Route path="/canvas-test" element={<Step1_Basics />} />
         </Route>
       </Routes>
     </BrowserRouter>

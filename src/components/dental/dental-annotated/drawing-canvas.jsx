@@ -1,79 +1,135 @@
 import React, { useCallback, useMemo, useRef } from "react";
-import { useNotesStore } from "@/stores/use-notes-chart-store";
+import { useNotesStore } from "@/stores/canvas/use-notes-chart-store";
 import NotesChart from "./notes-chart";
 import PointerDragging from "./pointer-dragging";
 import { MODES, posFromEvent } from "@/lib/dental-chart-utils";
-import { useCanvasStore } from "@/stores/use-canvas-store";
+import { useCanvasStore } from "@/stores/canvas/use-canvas-store";
 import { useCanvasHandlers } from "@/hooks/use-canvas-handlers";
+import { useNotesDataStore } from "@/stores/canvas/use-notes-store";
 
-export const DrawingCanvas = React.memo(({ canvasRef, dragOffset, overlayRef, snapshot, }) => {
+export const DrawingCanvas = React.memo(({ canvasRef, dragOffset, overlayRef, snapshot, drawbase }) => {
 
-  // اضف هذه الرفات بالقرب من بداية المكون
+  // داخل DentalChartPage / DrawingCanvas component (أعلى مكان تعريف noteDragHandlers)
   const rafRef = useRef(null);
   const pendingPosRef = useRef(null);
+  const noteBoxSizeRef = useRef({ w: 0, h: 0 })
   
   // 📌 notes store
-  const { 
-    notes, updateNote, draggingNoteId, setDraggingNoteId, setDblPoint,  setEditingNoteId ,setNoteDraft ,setShowNoteDialog
-  } = useNotesStore();
+  const {  draggingNoteId, setDraggingNoteId, setDblPoint,  setEditingNoteId ,setNoteDraft ,setShowNoteDialog } = useNotesStore();
+  const { notes, updateNote } = useNotesDataStore();
+
   const {offset, zoom, setZoom, activeMode , setOffset} = useCanvasStore();
 
   const { handlePointerDown, handlePointerMove, handlePointerUp } = useCanvasHandlers(canvasRef, snapshot, setOffset, dragOffset)
 
-  const noteDragHandlers = useMemo(
-    () => ({
-      onStart: (e, id) => {
-        console.log("onStart", { id });
-        const note = notes.find((n) => n.id === id);
-        if (!note) return;
-        setDraggingNoteId(id);
-        const pt = posFromEvent(e, offset, canvasRef, zoom);
-        console.log("start pt", pt);
-        console.log("note before start", notes.find(n => n.id === id));
-        dragOffset.current = { dx: pt.x - note.boxX, dy: pt.y - note.boxY };
-        console.log("dragOffset.current set to", dragOffset.current);
-      },
+  // useEffect(() => {
+  //   const el = rafRef?.current || canvasRef?.current;
+  //   if (!el) return;
 
-      onMove: (e) => {
-        if (!draggingNoteId) return
-        const pt = posFromEvent(e, offset, canvasRef, zoom)
-        const newBox = { x: pt.x - dragOffset.current.dx, y: pt.y - dragOffset.current.dy }
+  //   const wheelHandler = (ev) => {
+  //     // فقط لمن في وضع PAN نمنع السلوك الافتراضي
+  //     if (activeMode !== MODES.PAN) return;
+  //     ev.preventDefault();
+  //     const delta = ev.deltaY > 0 ? 0.9 : 1.1;
+  //     setZoom((z) => Math.max(0.5, Math.min(3, z * delta)));
+  //   };
 
-        // احفظ آخر موضع
-        pendingPosRef.current = newBox
+  //   el.addEventListener("wheel", wheelHandler, { passive: false });
+  //   return () => el.removeEventListener("wheel", wheelHandler, { passive: false });
+  // }, [canvasRef, rafRef, activeMode, setZoom]);
 
-        // لو مافيش raf مجدول، جدوله
-        if (!rafRef.current) {
-          rafRef.current = requestAnimationFrame(() => {
-            // استعمال آخر قيمة محفوظة فقط مرة لكل إطار
-            const latest = pendingPosRef.current
-            if (latest) {
-              updateNote(draggingNoteId, { boxX: latest.x, boxY: latest.y })
-            }
-            rafRef.current = null
-          })
-        }
-      },
+  const noteDragHandlers = useMemo(() => ({
+    onStart: (e, id) => {
+      // نتأكد إن فيه نوت
+      const note = notes.find((n) => n.id === id);
+      if (!note) return;
 
-      onEnd: () => {
-        if (rafRef.current) {
-          cancelAnimationFrame(rafRef.current)
-          rafRef.current = null
-        }
-        // flush final pos if موجود
-        if (pendingPosRef.current) {
-          updateNote(draggingNoteId, { boxX: pendingPosRef.current.x, boxY: pendingPosRef.current.y })
-          pendingPosRef.current = null
-        }
-        setDraggingNoteId(null)
+      // set dragging id
+      setDraggingNoteId(id);
+
+      // نقطة البداية (بالـ canvas coordinates)
+      const pt = posFromEvent(e, offset, canvasRef, zoom);
+
+      // حفظ الـ offset الداخلي بين مؤشر الماوس ومكان الصندوق
+      dragOffset.current = { dx: pt.x - note.boxX, dy: pt.y - note.boxY };
+
+      // قياس حجم صندوق النوت (CSS pixels -> نُحوّله لوحدات الـ canvas بقسمة على zoom)
+      // e.currentTarget هنا يجب أن يكون العنصر اللي بدأنا منه السحب (Note div)
+      try {
+        const el = e.currentTarget || e.target;
+        const rect = el.getBoundingClientRect();
+        noteBoxSizeRef.current = { w: rect.width / Math.max(zoom, 0.0001), h: rect.height / Math.max(zoom, 0.0001) };
+      } catch {
+        // لو مافيش قدرة على القياس نخلي قيم إفتراضية
+        noteBoxSizeRef.current = { w: 150 / Math.max(zoom, 0.0001), h: 80 / Math.max(zoom, 0.0001) };
       }
-    }),
-    [notes, draggingNoteId, setDraggingNoteId, updateNote, dragOffset, canvasRef, offset, zoom]
-  );
+    },
+
+    onMove: (e) => {
+      if (!draggingNoteId) return;
+
+      // نحسب موقع الماوس داخل الـ canvas (canvas coordinates)
+      const pt = posFromEvent(e, offset, canvasRef, zoom);
+
+      // نحدد الإحداثيات الجديدة للصندوق قبل الـ clamp
+      let newBoxX = pt.x - dragOffset.current.dx;
+      let newBoxY = pt.y - dragOffset.current.dy;
+
+      // قياسات الـ canvas الحقيقية (بكسل داخلية)
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const canvasW = canvas.width;
+      const canvasH = canvas.height;
+
+      // حجم الصندوق بوحدات canvas
+      const boxW = noteBoxSizeRef.current.w || 150;
+      const boxH = noteBoxSizeRef.current.h || 80;
+
+      // clamp داخل حدود الـ canvas (نمنع خروج الصندوق)
+      newBoxX = Math.max(0, Math.min(canvasW - boxW, newBoxX));
+      newBoxY = Math.max(0, Math.min(canvasH - boxH, newBoxY));
+
+      // جدولة التحديث عبر RAF (نحدّث الـ store مرة للفريم بدل لكل حدث)
+      pendingPosRef.current = { boxX: newBoxX, boxY: newBoxY };
+
+      if (!rafRef.current) {
+        rafRef.current = requestAnimationFrame(() => {
+          if (pendingPosRef.current && draggingNoteId) {
+            // نُحدّث فقط boxX/boxY لأن الـ anchor (note.x/note.y) يظل ثابتًا عادة
+            updateNote(draggingNoteId, {
+              boxX: pendingPosRef.current.boxX,
+              boxY: pendingPosRef.current.boxY,
+            });
+          }
+          pendingPosRef.current = null;
+          rafRef.current = null;
+        });
+      }
+    },
+
+    onEnd: () => {
+      // flush أي تحديث متبقي
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+      if (pendingPosRef.current && draggingNoteId) {
+        updateNote(draggingNoteId, {
+          boxX: pendingPosRef.current.boxX,
+          boxY: pendingPosRef.current.boxY,
+        });
+        pendingPosRef.current = null;
+      }
+
+      // نظف حالة السحب
+      setDraggingNoteId(null);
+    },
+  }), [notes, draggingNoteId, setDraggingNoteId, updateNote, dragOffset, canvasRef, offset, zoom]);
+
 
   const handleMouseMove = useCallback(
     (e) => {
-      handlePointerMove(e);
+      handlePointerMove(e, drawbase);
       noteDragHandlers.onMove(e);
     },
     [handlePointerMove, noteDragHandlers]
@@ -89,8 +145,8 @@ export const DrawingCanvas = React.memo(({ canvasRef, dragOffset, overlayRef, sn
   // تكبير/تصغير بالرول (zoom in/out) → يمنع سكرول الصفحة
   const handleWheel = useCallback(
     (e) => {
-      if (activeMode !== MODES.PAN) return
-      e.preventDefault()
+      if (activeMode !== MODES.PAN) return;
+      e.preventDefault();
       const delta = e.deltaY > 0 ? 0.9 : 1.1
       setZoom((prevZoom) => Math.max(0.5, Math.min(3, prevZoom * delta)))
     },
@@ -125,24 +181,24 @@ export const DrawingCanvas = React.memo(({ canvasRef, dragOffset, overlayRef, sn
             height: "100%",
           }}
           onMouseDown={handlePointerDown}
-          // onMouseMove={handlePointerMove}
-          // onMouseUp={handlePointerUp}
+          onMouseMove={handlePointerMove}
+          onMouseUp={handlePointerUp}
           onWheel={handleWheel}
           onDoubleClick={handleDoubleClick}
         />
 
         <svg
           ref={overlayRef}
-          className="absolute inset-0 pointer-events-none bg-background/30"
-          viewBox={`0 0 1000 700`}
+          className="absolute inset-0 size-full pointer-events-none bg-background/30"
+          // viewBox={`0 0 1000 600`}
           preserveAspectRatio="xMidYMid meet"
         >
           {notes.map((note) => (
-            <PointerDragging key={note.id} note={note} />
+            <PointerDragging key={note.id} note={note} canvasRef={canvasRef} />
           ))}
         </svg>
 
-        <NotesChart onStart={noteDragHandlers.onStart} />
+        <NotesChart onStart={noteDragHandlers.onStart} canvasRef={canvasRef} />
       </div>
     );
   }

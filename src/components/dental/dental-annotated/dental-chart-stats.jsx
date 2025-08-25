@@ -1,9 +1,9 @@
 import { MODES } from "@/lib/dental-chart-utils"
-import { useCanvasStore } from "@/stores/use-canvas-store";
-import { useNotesStore } from "@/stores/use-notes-chart-store"
+import { useCanvasStore } from "@/stores/canvas/use-canvas-store";
+import { useNotesDataStore } from "@/stores/canvas/use-notes-store";
 
 export const DentalChartStats = () => {
-  const { notes } = useNotesStore();
+  const { notes } = useNotesDataStore();
   const { zoom, brushSize, activeMode } = useCanvasStore();
   
   const getModeText = (mode) => {

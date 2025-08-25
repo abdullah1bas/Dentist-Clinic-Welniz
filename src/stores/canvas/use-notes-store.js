@@ -1,21 +1,8 @@
 import { create } from "zustand"
 import { uid } from "@/lib/dental-chart-utils"
 
-export const useNotesStore = create((set) => ({
+export const useNotesDataStore = create((set) => ({
   notes: [],
-  showNoteDialog: false,
-  editingNoteId: null,
-  noteDraft: "",
-  noteColor: "#fef9c3",
-  dblPoint: null,
-  draggingNoteId: null,
-
-  setShowNoteDialog: (show) => set({showNoteDialog: show}),
-  setNoteDraft: (noteDraft) => set({ noteDraft }),
-  setNoteColor: (noteColor) => set({ noteColor }),
-  setDblPoint: (pt) => set({ dblPoint: pt }),
-  setEditingNoteId: (id) => set({ editingNoteId: id }),
-  setDraggingNoteId: (id) => set({ draggingNoteId: id }),
 
   addNote: (x, y, text, noteColor) =>
     set((state) => ({
